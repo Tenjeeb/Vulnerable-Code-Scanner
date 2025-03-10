@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Vulnerable Code Scanner</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+    
+        <!------Navigation bar --->
+        <nav class="nav">
+            <div class="logo">
+                <img src="{{url_for('static', filename='images/logo.png')}}" alt="logo" class="logo-img">  <!--logo-->
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">Scan History</a>
+                <a href="#" class="nav-link">Documentation</a>
+            </div>
+
+        <!----Theme Toggle button-->
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </button>
+        </nav>
+
+        <div class="container">
+        <!----Welcome section -->
+            <section class="welcome-section">
+                <h1>Vulnerable Code Scanner</h1>
+                <p>Ensuring your code is secure and resilient has never been easier. Use our tool to scan, detect, and remediate vulnerabilities efficiently.</p>  
+            </section>
+        <!----How it works steps-->
+            <section class="how-it-works">
+                <div class="step-card">
+                    <i class="fas fa-upload"></i>
+                    <h3>Step 1</h3>
+                    <p>Upload your code</p>
+                </div>
+                <div class="step-card">
+                    <i class="fas fa-search"></i>
+                    <h3>Step 2</h3>
+                    <p>Our scanner analyzes your code</p>
+                </div>
+                <div class="step-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>Step 3</h3>
+                    <p>View detailed reports</p>
+                </div>
+                <div class="step-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Step 4</h3>
+                    <p>Fix vulnerabilities</p>
+                </div>
+            </section>
+
+        <!----Scanner Section-->
+            <section class="scanner-section">
+                <div class="scan-area">
+                    <div class="input-methods">
+                        <button class="tab active" onclick="switchTab('paste', event)" arial-label = "Switch to paste code tab">Paste Code</button>
+                        <button class="tab" onclick="switchTab('upload', event)" arial-label = "Switch to upload file tab">Upload File</button>
+                    </div>
+                    <textarea class="input-area" id="code-input" placeholder="Paste your code here..."></textarea>
+                    <input type="file" id="file-input" style="display: none;" />
+                    <button class="cta-button" onclick="startScan()"> Start Your Scan Now</button>
+                </div>
+            </section>
+
+        <!---Report Section-->
+            <section class="report-section" is="report-section">
+                <h2 class="scan-report-heading"><i class="fas fa-file-alt"></i> Scan Report</h2>
+                <div id = "report-container"></div>
+            </section>
+        
+            <!-- Why Choose Section -->
+            <section class="why-choose">
+                <h2>Why Choose Us?</h2>
+                <div class="benefits-container">
+                    <div class="benefit-card">
+                        <i class="fas fa-bug"></i>
+                        <h3>Simplified Vulnerability Detection</h3>
+                        <p>Quickly identifies and reports security flaws in Python code.</p>
+                    </div>
+        
+                    <div class="benefit-card">
+                        <i class="fas fa-graduation-cap"></i>
+                        <h3>Educational Support</h3>
+                        <p>Includes tutorials and secure coding practices to help developers improve.</p>
+                    </div>
+        
+                    <div class="benefit-card">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h3>Actionable Feedback</h3>
+                        <p>Not only scan codes but also provides secure code examples for easy fixes.</p>
+                    </div>
+        
+                    <div class="benefit-card">
+                        <i class="fas fa-user-friends"></i>
+                        <h3>Developer-Friendly</h3>
+                        <p>User-friendly interface for smooth workflow.</p>
+                    </div>
+        
+                    <div class="benefit-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>OWASP Top 10 Integration</h3>
+                        <p>Covers critical vulnerabilites based on industry standards.</p>
+                    </div>
+
+                    <div class="benefit-card">
+                        <i class="fab fa-python"></i>
+                        <h3>Focused on Python</h3>
+                        <p>Specifically designed to address Python security challenges effectively.</p>
+                    </div>
+                </div>
+            </section>
+        
+        <!---Resource Section-->
+            <section class="resources-section">
+                <div class="resources">
+                    <h2>Educational Resources</h2>
+                    <div class="resources-grid">
+                        <div class="resource-card">
+                            <i class="fas fa-book"></i>
+                            <h3>Tutorials</h3>
+                            <p>Learn secure coding practices</p>
+                        </div>
+                        <div class="resource-card">
+                            <i class="fas fa-question-circle"></i>
+                            <h3>FAQs</h3>
+                            <p>Common security questions</p>
+                        </div>
+                        <div class="resource-card">
+                            <i class="fas fa-file-code"></i>
+                            <h3>Documentation</h3>
+                            <p>Detailed guides and references</p>
+                        </div>
+                        <div class="resource-card">
+                            <i class="fas fa-blog"></i>
+                            <h3>Blogs</h3>
+                            <p>Latest security insights</p>
+                        </div>       
+                    </div>
+                    <div class="tip-box">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>Tip of the Day:</strong> Always sanitize user input to prevent SQL injection attacks. 
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!----Javascript-->
+
+        <script>
+            function switchTab(tab) {
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                event.target.classList.add('active');
+
+                const inputArea = document.getElementById('code-input');
+                const fileInput = document.getElementById('file-input');
+
+                if (tab === 'upload') {
+                    inputArea.style.display = 'none';
+                    fileInput.style.display = 'block';
+                } else {
+                    inputArea.style.display = 'block';
+                    fileInput.style.display = 'none';
+                }
+            }
+
+            function startScan() {
+                const fileInput = document.getElementById('file-input');
+                const codeInput = document.getElementById('code-input');
+                const formData = new FormData();
+
+            if (fileInput.style.display === 'block' && fileInput.files.length > 0) {
+                // File upload is selected
+                formData.append('file', fileInput.files[0]);
+            } else if (codeInput.style.display === 'block' && codeInput.value.trim() !== '') {
+                // Code paste is selected (optional)
+                formData.append('file', new Blob([codeInput.value], {type: 'text/plain'}), 'code.txt');
+            } else {
+                alert("Please upload a file or paste code.");
+                return;
+            }
+            
+            // Send file to the backend
+            fetch('/scan', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error! Status: ' + response.status);
+                }
+                return response.json();
+            })
+
+            .then(data => {
+                if (data.vulnerabilities && data.vulnerabilities.length > 0) {
+                    displayReport(data.vulnerabilities);
+                } else if (data.error) {
+                    alert('Error: ' + data.error);    
+                } else {
+                    document.getElementById('report-container').innerHTML = '<p> No vulnerabilites detected. </p>';
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+
+        }
+
+        function displayReport(vulnerabilities) {
+    const reportContainer = document.getElementById('report-container');
+    reportContainer.innerHTML = ''; // Clear existing report
+
+    vulnerabilities.forEach(vulnerability => {
+        const reportItem = document.createElement('div');
+        reportItem.classList.add('report-item');
+
+        const type = document.createElement('h3');
+        type.textContent = `Type: ${vulnerability.type}`;
+        reportItem.appendChild(type);
+
+        const line = document.createElement('p');
+        line.textContent = `Line: ${vulnerability.line}`;
+        reportItem.appendChild(line);
+
+        const description = document.createElement('p');
+        description.textContent = `Description: ${vulnerability.description}`;
+        reportItem.appendChild(description);
+
+        const severity = document.createElement('p');
+        severity.textContent = `Severity: ${vulnerability.severity}`;
+        severity.style.color = getSeverityColor(vulnerability.severity);
+        reportItem.appendChild(severity);
+
+        const secureExample = document.createElement('pre');
+        secureExample.textContent = `Secure Example:\n${vulnerability.secure_example}`;
+        reportItem.appendChild(secureExample);
+
+        reportContainer.appendChild(reportItem);
+    });
+}
+
+function getSeverityColor(severity) {
+    switch (severity.toLowerCase()) {
+        case 'critical': return '#FF0000';
+        case 'high': return 'red';
+        case 'medium': return 'orange';
+        case 'low': return 'green';
+        default: return 'black';
+    }
+}
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('.theme-toggle i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+        </script>
+    </body>
+</html>
