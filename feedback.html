@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - Vulnerable Code Scanner</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+    <!------Navigation bar --->
+    <nav class="nav">
+        <div class="logo">
+            <img src="{{url_for('static', filename='images/logo.png')}}" alt="logo" class="logo-img">  <!--logo-->
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>       
+            <a href="/feedback" class="nav-link">Feedback form</a>
+            <a href="#" class="nav-link">Vulnerability Database</a>
+        </div>
+
+    <!----Theme Toggle button-->
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </nav>
+ 
+    <div class="container">
+        <h1>Feedback</h1>
+        <form id="feedbackForm">
+            <!-- Name -->
+            <div class="form-group">
+                <label for="name" class="required">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email" class="required">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <!-- Role -->
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role">
+                    <option value="">Select your role</option>
+                    <option value="developer">Developer</option>
+                    <option value="security_engineer">Security Engineer</option>
+                    <option value="devops">DevOps</option>
+                    <option value="manager">Manager</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- False Positives -->
+            <div class="form-group">
+                <label for="falsePositives" class="required">Did you encounter any false positives?</label>
+                <select id="falsePositives" name="falsePositives" required>
+                    <option value="">Please select</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="unsure">Unsure</option>
+                </select>
+            </div>
+
+            <!-- False Positives Details -->
+            <div class="form-group">
+                <label for="falsePositivesDetails">If yes, please provide details:</label>
+                <textarea id="falsePositivesDetails" name="falsePositivesDetails"></textarea>
+            </div>
+
+            <!-- Missed Vulnerabilities -->
+            <div class="form-group">
+                <label for="falseNegatives" class="required">Did you notice any missed vulnerabilities?</label>
+                <select id="falseNegatives" name="falseNegatives" required>
+                    <option value="">Please select</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="unsure">Unsure</option>
+                </select>
+            </div>
+
+            <!-- Missed Vulnerabilities Details -->
+            <div class="form-group">
+                <label for="falseNegativesDetails">If yes, please provide details:</label>
+                <textarea id="falseNegativesDetails" name="falseNegativesDetails"></textarea>
+            </div>
+
+            <!-- Additional Features -->
+            <div class="form-group">
+                <label for="features">Are there any additional features you would like to see?</label>
+                <textarea id="features" name="features"></textarea>
+            </div>
+
+            <!-- Additional Comments -->
+            <div class="form-group">
+                <label for="additionalComments">Additional Comments:</label>
+                <textarea id="additionalComments" name="additionalComments"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Submit Feedback</button>
+        </form>
+    </div>
+
+     <!-- Footer Section -->
+     <footer class="footer">
+        <div class="footer-content">
+        <p><strong>&copy; 2025 Vulnerable Code Scanner. All rights reserved.</strong></p>
+        
+        <!-- Footer Text Without Links (Except GitHub) -->
+        <div class="footer-links">
+            <ul>
+                <li>Privacy Policy</li>
+                <li>Terms of Service</li>
+                <li><a href="https://github.com/Tenjeeb/Vulnerable-Code-Scanner" target="_blank" aria-label="GitHub" class="github-link">GitHub</a></li>
+                <li>Contact Us</li>
+            </ul>
+        </div>
+
+        <!-- Social Media icons -->
+        <div class="social-media">
+            <a aria-label="Twitter">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a aria-label="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+            <a aria-label="Facebook">
+                <i class="fab fa-facebook"></i>
+            </a>
+        </div>
+        </div>
+    </footer>
+
+
+    <script>
+        document.getElementById('feedbackForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            // Gather form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                role: document.getElementById('role').value,
+                falsePositives: document.getElementById('falsePositives').value,
+                falsePositivesDetails: document.getElementById('falsePositivesDetails').value,
+                falseNegatives: document.getElementById('falseNegatives').value,
+                falseNegativesDetails: document.getElementById('falseNegativesDetails').value,
+                features: document.getElementById('features').value,
+                additionalComments: document.getElementById('additionalComments').value
+            };
+
+            // Send data to the backend
+            fetch('/submit-feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('Thank you for your feedback!');
+                    document.getElementById('feedbackForm').reset();
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>
