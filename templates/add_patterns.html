@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Vulnerability Pattern</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /*  Styles */
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .vulnerability-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, textarea, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .submit-btn {
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="logo" class="logo-img">
+        </div>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/feedback" class="nav-link">Feedback form</a>
+            <a href="/add_patterns" class="nav-link">Add Patterns</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Add a New Vulnerability Pattern</h1>
+        <form id="addPatterns">
+            <div class="form-group">
+                <label for="type">Type</label>
+                <input type="text" id="type" name="type" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="2" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="severity">Severity</label>
+                <select id="severity" name="severity" required>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="secure_example">Secure Example</label>
+                <textarea id="secure_example" name="secure_example" rows="4" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Add Pattern</button>
+        </form>
+    </div>
+    
+         <!-- Footer Section -->
+         <footer class="footer">
+            <div class="footer-content">
+            <p><strong>&copy; 2025 Vulnerable Code Scanner. All rights reserved.</strong></p>
+            
+            <!-- Footer Text Without Links (Except GitHub) -->
+            <div class="footer-links">
+                <ul>
+                    <li>Privacy Policy</li>
+                    <li>Terms of Service</li>
+                    <li><a href="https://github.com/Tenjeeb/Vulnerable-Code-Scanner" target="_blank" aria-label="GitHub" class="github-link">GitHub</a></li>
+                    <li>Contact Us</li>
+                </ul>
+            </div>
+    
+            <!-- Social Media icons -->
+            <div class="social-media">
+                <a aria-label="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a aria-label="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+                <a aria-label="Facebook">
+                    <i class="fab fa-facebook"></i>
+                </a>
+            </div>
+            </form>
+        </div>
+        </footer>
+
+</body>
+</html>
