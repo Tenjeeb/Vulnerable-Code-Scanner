@@ -14,7 +14,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# Helper function to check allowed file extensions
+# Helper function to check allowed file extension
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -41,7 +41,6 @@ def scan_code(file_content):
                     vulnerabilities.append({
                         "type": name,
                         "line": i + 1,  # Line number (1-indexed)
-                        "line_content": line.strip(),  # Vulnerable line content
                         "description": description,
                         "severity": severity,
                         "secure_example": secure_example
