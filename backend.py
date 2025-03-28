@@ -31,13 +31,14 @@ def scan_code(file_content):
     # Fetch all patterns from the database
     cursor.execute("Select name, pattern, description, severity, secure_example FROM Patterns")
     patterns = cursor.fetchall()
-
     # Scan each line of the file for vulnerabilities
     for i, line in enumerate(lines):
         for name, pattern, description, severity, secure_example in patterns:
             if re.search(pattern, line, re.IGNORECASE):
                 # Avoid reporting duplicate vulnerabilities
                 if (name, i) not in reported_vulnerabilites:
+                    line_content = line.strip()  # Get the vulnerable line content
+                    print(f"Vulnerability found: {name}, Line {i + 1}, Content: {line_content}")  # Debug print
                     vulnerabilities.append({
                         "type": name,
                         "line": i + 1,  # Line number (1-indexed)
