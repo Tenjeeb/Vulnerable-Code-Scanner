@@ -94,17 +94,6 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #----- 2 Cryptographic Failure-------#
-    (
-        "Cleartext Transmission of Sensitive Information",
-        r'requests\.(get|post|put|delete)\(\s*[\'\"]http://',  
-        "Avoid transmitting sensitive data over unencrypted channels.",
-        "High",
-        """Use HTTPS instead of HTTP to encrypt data in transit.
-    
-        import requests
-        response = requests.get('https://secure-api.com/data')
-        """
-    ),
 
     (
         "Use of weak or broken Cryptographic Algorithm",
