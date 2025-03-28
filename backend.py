@@ -41,6 +41,7 @@ def scan_code(file_content):
                     vulnerabilities.append({
                         "type": name,
                         "line": i + 1,  # Line number (1-indexed)
+                        "line_content": line_content,  # Vulnerable line content
                         "description": description,
                         "severity": severity,
                         "secure_example": secure_example

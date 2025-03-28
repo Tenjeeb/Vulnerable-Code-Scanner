@@ -208,11 +208,6 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
 }
-.vulnerable-line {
-    background-color: #fdd;
-    border: 1px solid #f00;
-}
-
 
 /* Why Choose Section Styles */
 .why-choose {

@@ -287,6 +287,10 @@ function displayReport(vulnerabilities) {
         line.textContent = `Line: ${vulnerability.line}`;
         reportItem.appendChild(line);
 
+        const lineContent = document.createElement('p');
+        lineContent.textContent = `Code: ${vulnerability.line_content}`;  // Display the vulnerable line content
+        reportItem.appendChild(lineContent);
+
         const description = document.createElement('p');
         description.textContent = `Description: ${vulnerability.description}`;
         reportItem.appendChild(description);
@@ -301,21 +305,7 @@ function displayReport(vulnerabilities) {
         reportItem.appendChild(secureExample);
 
         reportContainer.appendChild(reportItem);
-
-        // Now highlight the vulnerable line in the code
-        highlightVulnerableLine(vulnerability.line);
     });
-}
-
-function highlightVulnerableLine(lineNumber) {
-    const codeInput = document.getElementById('code-input');
-    const lines = codeInput.innerText.split('\n');  // Get the lines of code
-
-    // Ensure the lineNumber is valid
-    if (lineNumber > 0 && lineNumber <= lines.length) {
-        lines[lineNumber - 1] = `<mark class="vulnerable-line">${lines[lineNumber - 1]}</mark>`;  // Highlight the vulnerable line
-        codeInput.innerHTML = lines.join('\n');  // Update the content of the pre element
-    }
 }
 
 
