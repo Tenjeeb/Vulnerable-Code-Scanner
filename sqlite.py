@@ -120,18 +120,6 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     (
-        "Weak Encoding for Passwords",
-        r'base64\.b64encode\s*\(.*password',  
-        "Avoid using weak encoding methods like Base64 for password storage.",
-        "High",
-        """Use secure password hashing functions like bcrypt or Argon2.
-    
-        from bcrypt import hashpw, gensalt
-        hashed_pw = hashpw(b'my_secure_password', gensalt())
-        """
-    ),
-
-    (
         "Unprotected Transport of Credentials",
         r'(\busername\s*=\s*["\'][^"\']+["\']|\bpassword\s*=\s*["\'][^"\']+["\'])',  
         "Avoid transmitting credentials in plaintext.",
