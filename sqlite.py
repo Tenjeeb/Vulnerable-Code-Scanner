@@ -235,17 +235,6 @@ VALUES (?, ?, ?, ?, ?)
         """
     ),
 
-    (
-        "Insufficiently Protected Credentials",
-        r'(\bpassword\s*=\s*[\'\"].*[\'\"]|\bopen\s*\([\'\"].*\.txt[\'\"]\))',
-        "Avoid storing credentials in plain text files or hardcoded variables.",
-        "Critical",
-        """Use environment variables or a secure credentials manager.
-        Example:
-        import os
-        password = os.getenv('DB_PASSWORD')  
-        """
-    ),
 
     (
         "External Control of Critical State Data",
