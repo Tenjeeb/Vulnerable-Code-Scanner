@@ -235,22 +235,6 @@ VALUES (?, ?, ?, ?, ?)
         """
     ),
 
-
-    (
-        "External Control of Critical State Data",
-        r'(\bsession\[[\'\"]\w+[\'\"]\]\s*=\s*request\.(args|get_json|get_data)\.get)',
-        "Avoid storing untrusted user input in session variables without validation.",
-        "High",
-        """Use signed session tokens or securely verify user input before storing it.
-        Example:
-        from flask import session, request
-        user_role = request.args.get('role', 'guest')
-
-        if user_role in ['admin', 'user']:
-            session['role'] = user_role  
-        """
-    ),
-
     #----- 5 Security Misconfiguration ------#
 
     (
