@@ -292,18 +292,6 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     (
-        "Use of Hard-coded Password",
-        r'(password\s*=\s*["\'][^"\']+["\'])',
-        "Avoid hardcoding passwords in the source code.",
-        "Critical",
-        """Use environment variables or secure vaults for storing credentials.
-        Example:
-        import os
-        password = os.getenv('DB_PASSWORD')  # Safe way to load password
-        """
-    ),
-
-    (
         "Weak Password Requirements",
         r'(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}',  # Example for detecting weak password pattern
         "Ensure strong password policies are enforced (e.g., minimum length, uppercase, special characters).",
