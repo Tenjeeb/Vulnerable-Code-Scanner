@@ -280,18 +280,6 @@ VALUES (?, ?, ?, ?, ?)
     #---- 7 Identification and Authentication Failures ---#
 
     (
-        "Authentication Bypass",
-        r'(login\([^\)]*\)|authenticate\([^\)]*\))\s*[^a-zA-Z0-9]{0,5}\s*(true|false|1|0)\s*[^a-zA-Z0-9]{0,5}',
-        "Ensure proper authentication checks are in place and not bypassed.",
-        "Critical",
-        """Make sure all authentication endpoints check user credentials and restrict access properly.
-        Example:
-        if not authenticate(user):
-            raise Unauthorized("Access Denied")
-        """
-    ),
-
-    (
         "Weak Password Requirements",
         r'(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}',  # Example for detecting weak password pattern
         "Ensure strong password policies are enforced (e.g., minimum length, uppercase, special characters).",
