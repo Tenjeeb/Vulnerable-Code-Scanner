@@ -139,17 +139,11 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "SQL Injection",
-        r'["\']\s*\+\s*[\w.]+\s*\+\s*["\']',
-        "Dynamic SQL queries constructed using concatenation can lead to SQL Injection vulnerabilites.",
+        r'execute\(f?"SELECT.*?\$\{?\w+\}?"\)',
+        "String interpolation in SQL queries.",
         "Critical",
-        """Use parameterized queries or prepared statements.
-        Example:
-        import sqlite3
-        conn = sqlite3.connect('example.db')
-        cursor = conn.cursor()
-        query = 'SELECT * FROM users WHERE username = ?'
-        cursor.execute(query, (username,))
-        """
+        """Use parameterized queries:
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))"""
     ),
 
     (
