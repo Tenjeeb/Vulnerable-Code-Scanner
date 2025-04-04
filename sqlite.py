@@ -43,6 +43,16 @@ VALUES (?, ?, ?, ?, ?)
     filename = secure_filename(input)"""
 ),
 
+(
+    "Missing CSRF Protection",
+    r'@app\.route\(.*?methods=\[.*?POST.*?\]\)[^@]*?def\s+\w+\([^)]*\):[^}]*?(request\.(form|json|args)\[',
+    "Missing CSRF protection on form handlers",
+    "High",
+    """Add CSRF protection:
+    from flask_wtf.csrf import CSRFProtect
+    CSRFProtect(app)"""
+),
+
 #---- 2 Cryptographic Failure ---#
 (
     "Hardcoded Secrets",
@@ -57,11 +67,21 @@ VALUES (?, ?, ?, ?, ?)
 #---- 3 Injection ---#
 (
     "SQL Injection",
-    r'execute\(f?["\'].*?\{.*?\}',
+    r'execute\(f?"[^"]*\{[^}]*\}',
     "Unparameterized SQL queries",
     "Critical",
     """Use query parameters:
-    cursor.execute("SELECT * FROM users WHERE id=?", (id,))"""
+    cursor.execute("SELECT * FROM users WHERE username=? AND password=?", 
+    (username, hashed_password))"""
+),
+
+(
+    "XSS Risk",
+    r'render_template(_string)?\([^)]*\{[^}]*\}',
+    "Potential unescaped template variables",
+    "High",
+    """Flask auto-escapes, but be explicit:
+    {{ user_content|e }}"""
 ),
 
 (
@@ -140,11 +160,12 @@ VALUES (?, ?, ?, ?, ?)
 #---- 10 SSRF ---#
 (
     "Server-Side Request Forgery",
-    r'requests\.get\([^)]*\)',
+    r'requests?\.(get|post|put|delete)\([^)]*\)',
     "Unrestricted URL fetching",
     "Critical",
     """Validate URLs:
-    if not url.startswith('https://trusted.com'):
+    ALLOWED_DOMAINS = {'trusted.com'}
+    if not any(urlparse(url).netloc.endswith(d) for d in ALLOWED_DOMAINS):
         abort(400)"""
 )
 ])
