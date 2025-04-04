@@ -41,7 +41,7 @@ VALUES (?, ?, ?, ?, ?)
         """Secure file access:
         from werkzeug.utils import secure_filename
         safe_path = secure_filename(user_input)"""
-    )
+    ),
 
     (
         "Missing Authorization",
@@ -247,7 +247,7 @@ VALUES (?, ?, ?, ?, ?)
         """Add CSRF protection:
         from flask_wtf.csrf import CSRFProtect
         CSRFProtect(app)"""
-    )
+    ),
 
     #---- 6 Vulnerable and Outdated Components ---#
 
