@@ -22,318 +22,131 @@ cursor.executemany("""
 INSERT INTO Patterns (name, pattern, description, severity, secure_example)
 VALUES (?, ?, ?, ?, ?)
 """, [
-    #---- 1 Broken Access Control ---#
-    (
-        "IDOR in URLs",
-        r'\/\b(users?|accounts?|profiles?|orders?)\/\d+\b',
-        "Exposing internal object references in URLs without authorization checks.",
-        "High",
-        """Add authorization checks:
-        if not user.can_access(resource_id):
-            abort(403)"""
-    ),
+#---- 1 Broken Access Control ---#
+(
+    "IDOR in URLs",
+    r'\/\b(users?|accounts?|profiles?|orders?)\/\d+\b',
+    "Direct object references without access checks",
+    "High",
+    """Add ownership verification:
+    if resource.owner != current_user.id:
+        abort(403)"""
+),
 
-    (
-        "Path Traversal",
-        r'(\.\.\/|\.\.\\|\~\/)',
-        "Potential directory traversal attack.",
-        "Critical",
-        """Secure file access:
-        from werkzeug.utils import secure_filename
-        safe_path = secure_filename(user_input)"""
-    ),
+(
+    "Path Traversal",
+    r'(\.\.\/|\.\.\\|\~\/)',
+    "Directory traversal possible",
+    "Critical",
+    """Use secure_filename:
+    from werkzeug.utils import secure_filename
+    filename = secure_filename(input)"""
+),
 
-    (
-        "Missing Authorization",
-        r'@app\.route\(.*?\)[^@]*?def\s+\w+\s*\([^)]*\):',  # Narrowed to Flask routes
-        "Ensure proper authorization checks for protected resources.",
-        "Critical",
-        """Add authorization:
-        @app.route('/admin')
-        def admin_panel():
-            if not request.user.is_admin:
-                abort(403)
-            return 'Welcome, Admin!'"""
-    ),
+#---- 2 Cryptographic Failure ---#
+(
+    "Hardcoded Secrets",
+    r'(password|secret|key)\s*=\s*["\'][^\'"]+["\']',
+    "Secrets exposed in source code",
+    "Critical",
+    """Use environment variables:
+    import os
+    key = os.getenv('SECRET_KEY')"""
+),
 
-    (
-        "Missing CSRF Protection",  
-        r'@app\.route\(.*?methods=\[.*?POST.*?\]\)',  
-        "Missing CSRF protection on POST endpoints.",
-        "High",
-        """Add CSRF protection:
-        from flask_wtf.csrf import CSRFProtect
-        CSRFProtect(app)"""
-    ),
- 
-    (
-        "Hardcoded Secrets",
-        r'(password|secret|key)\s*=\s*[\'"][^\'"]+[\'"]',
-        "Hardcoded credentials in source code.",
-        "Critical",
-        """Use environment variables:
-        import os
-        password = os.getenv('DB_PASSWORD')"""
-    ),
+#---- 3 Injection ---#
+(
+    "SQL Injection",
+    r'execute\(f?["\'].*?\{.*?\}',
+    "Unparameterized SQL queries",
+    "Critical",
+    """Use query parameters:
+    cursor.execute("SELECT * FROM users WHERE id=?", (id,))"""
+),
 
-    #----- 2 Cryptographic Failure-------#
+(
+    "Command Injection",
+    r'subprocess\.\w+\(.*?\{.*?\}.*?,?\s*shell=True',
+    "Unsafe shell command execution",
+    "Critical",
+    """Use shell=False:
+    subprocess.run(['cmd', 'arg'], shell=False)"""
+),
 
-    (
-        "Use of weak or broken Cryptographic Algorithm",
-        r'hashlib\.(md5|sha1)\(',  
-        "Avoid using weak cryptographic algorithms like MD5, SHA-1, or DES.",
-        "High",
-        """Use stronger cryptographic algorithms like SHA-256 or AES.
-    
-        import hashlib
-        hash = hashlib.sha256(b'secure_data').hexdigest()
-        """
-    ),
+#---- 4 Insecure Design ---#
+(
+    "Missing Rate Limiting",
+    r'@app\.route\(.*?\)\s*def\s+\w+\(\):',
+    "No brute-force protection",
+    "Medium",
+    """Add Flask-Limiter:
+    from flask_limiter import Limiter
+    limiter = Limiter(app)"""
+),
 
-    (
-        "Hardcoded Cryptographic Key",
-        r'(\b[A-Za-z0-9+/=]{16,}\b)',  
-        "Avoid hardcoding cryptographic keys in source code.",
-        "Critical",
-        """Store cryptographic keys in environment variables or secure vaults.
+#---- 5 Security Misconfiguration ---#
+(
+    "Debug Mode Enabled",
+    r'app\.run\(.*?debug\s*=\s*True',
+    "Debug mode exposes sensitive data",
+    "High",
+    """Disable in production:
+    app.run(debug=False)"""
+),
 
-        import os
-        secret_key = os.getenv('SECRET_KEY')
-        """
-    ),
+#---- 6 Vulnerable Components ---#
+(
+    "Outdated Flask",
+    r'from flask import|import flask',
+    "Update to latest Flask version",
+    "High",
+    """Check updates:
+    pip list --outdated
+    pip install --upgrade flask"""
+),
 
-    (
-        "Unprotected Transport of Credentials",
-        r'(\busername\s*=\s*["\'][^"\']+["\']|\bpassword\s*=\s*["\'][^"\']+["\'])',  
-        "Avoid transmitting credentials in plaintext.",
-        "Critical",
-        """Use secure authentication methods and encrypted connections.
+#---- 7 Authentication Failures ---#
+(
+    "Plaintext Passwords",
+    r'password\s*=\s*["\'][^\'"]+["\']',
+    "Passwords should be hashed",
+    "Critical",
+    """Use password hashing:
+    from werkzeug.security import generate_password_hash
+    hash = generate_password_hash(password)"""
+),
 
-        import requests
-        response = requests.post('https://secure-api.com/login', json={'username': os.getenv('USER'), 'password': os.getenv('PASS')})
-        """
-    ),
+#---- 8 Data Integrity ---#
+(
+    "Unsafe Pickle",
+    r'pickle\.loads\([^)]*\)',
+    "Arbitrary code execution risk",
+    "Critical",
+    """Use JSON instead:
+    import json
+    data = json.loads(safe_data)"""
+),
 
-    #----- 3 Injection------#
+#---- 9 Logging Failures ---#
+(
+    "Sensitive Data in Logs",
+    r'logging\.\w+\(.*?(password|secret|key)',
+    "Secrets exposed in logs",
+    "High",
+    """Sanitize logs:
+    logging.info("User %s logged in", username)"""
+),
 
-    (
-        "OS Command Injection",
-        r'subprocess\.\w+\(f?".*?\{.*?\}.*?"\)',
-        "User input in system commands.",
-        "Critical",
-        """Use safe subprocess:
-        subprocess.run(['ls'], shell=False)"""
-    ),
-
-    (
-        "SQL Injection",
-        r'execute\(f?"SELECT.*?\$\{?\w+\}?"\)',
-        "String interpolation in SQL queries.",
-        "Critical",
-        """Use parameterized queries:
-        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))"""
-    ),
-
-    (
-        "LDAP Injection",
-        r'(\bldap3\.Connection\b.*search\()',
-        "Avoid directly inserting user input in LDAP queries. Use parameterized LDAP filters.",
-        "High",
-        """Use parameterized LDAP queries to avoid injection attacks.
-        Example:
-        from ldap3 import Connection, ALL
-        conn = Connection('ldap://server', auto_bind=True)
-        conn.search('dc=example,dc=com', '(uid={})'.format(ldap.escape_filter_chars(user_input))) 
-        """
-    ),
-
-    (
-        "XSS (Reflected)",
-        r'render_template\(.*?\{.*?\}.*?\)',
-        "Unescaped user input in templates.",
-        "High",
-        """Escape output:
-        return render_template('template.html', 
-        user_input=escape(user_input))"""
-    ),
-
-    (
-        "XPath Injection",
-        r'(\bxpath\s*=\s*[\'\"].*?//\w+\s*\[.*?\+.*?\])',
-        "Avoid constructing XPath queries with direct user input. Use parameterized XPath queries.",
-        "High",
-        """Use libraries that support parameterized XPath queries.
-        Example:
-        from lxml import etree
-        tree = etree.parse("data.xml")
-        query = "//user[@id=$id]"  # Safe
-        result = tree.xpath(query, id=user_input)
-        """
-    ),
-
-    (
-        "XML Injection",
-        r'(\bxml\.parse\b|\bET\.fromstring\b)',
-        "Avoid parsing untrusted XML input without disabling external entity references (XXE).",
-        "High",
-        """Disable external entity expansion to prevent XXE attacks.
-        Example:
-        from defusedxml.ElementTree import parse
-        tree = parse("data.xml")  
-        """
-    ),
-
-    #----- 4 Insecure Design ------#
-    (
-        "Unrestricted File Upload",
-        r'(\brequest\.files\b|\bsave\(\))',
-        "Ensure uploaded files are validated and restricted to safe types.",
-        "Critical",
-        """Validate file types and use a secure upload directory.
-        Example:
-        from werkzeug.utils import secure_filename
-        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
-    
-        def allowed_file(filename):
-            return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
-
-        file = request.files['file']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join('/uploads/', filename))  
-        """
-    ),
-
-    #----- 5 Security Misconfiguration ------#
-
-    (
-        "Improper Restriction of XML External Entity Reference",
-        r'(<\?xml.*\s+DOCTYPE\s+\w+.*\s+SYSTEM\s*=\s*["\'][^"\']+["\'])',
-        "Avoid enabling XML External Entities (XXE). Disable external entity references in XML parsers.",
-        "Critical",
-        """Disable XML external entities in parsers.
-        Example:
-        from lxml import etree
-    
-        parser = etree.XMLParser(resolve_entities=False)  # Disable XXE
-        tree = etree.parse('file.xml', parser)
-        """
-    ),
-
-    (
-        "Sensitive Cookie Without 'HttpOnly' Flag",
-        r'(set_cookie\([\'\"][^\'\"]+[\'\"][^;]*;[^;]*\s*Secure\s*;[^;]*\s*HttpOnly)',
-        "Ensure that sensitive cookies have the 'HttpOnly' flag set.",
-        "High",
-        """Set the 'HttpOnly' flag on cookies to prevent JavaScript access.
-        Example:
-        response.set_cookie('session_id', 'abc123', httponly=True, secure=True)  # Safe cookie
-        """
-    ),
-
-    (
-        "Missing CSRF Protection",
-        r'@app\.route\(.*?methods=\[.*?POST.*?\]\)(?!.*@csrf.exempt)',
-        "Missing CSRF protection on POST endpoints.",
-        "High",
-        """Add CSRF protection:
-        from flask_wtf.csrf import CSRFProtect
-        CSRFProtect(app)"""
-    ),
-
-    #---- 6 Vulnerable and Outdated Components ---#
-
-    (
-        "Using Components with Known Vulnerabilities",
-        r'(\bimport\s+\w+\b|\bfrom\s+\w+\s+import\s+\w+\b)',
-        "Ensure that third-party libraries and components are updated and free of known vulnerabilities.",
-        "Critical",
-        """Use tools like Dependabot, Safety, or OWASP Dependency-Check to monitor and update dependencies.
-        Example:
-        # Install and check for vulnerabilities using `safety` library
-        # safety check
-        # Or use Dependabot in GitHub repositories for automated dependency updates
-        """
-    ),
-
-    #---- 7 Identification and Authentication Failures ---#
-
-    (
-        "Weak Password Requirements",
-        r'(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}',  # Example for detecting weak password pattern
-        "Ensure strong password policies are enforced (e.g., minimum length, uppercase, special characters).",
-        "Critical",
-        """Implement strong password requirements in your authentication system.
-        Example:
-        if len(password) < 8 or not any(c.isdigit() for c in password):
-            raise ValueError("Weak password: Must contain at least 8 characters and a number.")
-        """
-    ),
-
-    (
-        "Insufficient Session Expiration",
-        r'(session\.[^=]+)\s*=\s*["\'][^"\']+["\']',
-        "Ensure that sessions expire after a reasonable time or after logout.",
-        "High",
-        """Implement session expiration after a set period of inactivity.
-        Example:
-        import time
-        if time.time() - session['last_activity'] > 1800:
-            session.clear()  # Expire session after 30 minutes
-        """
-    ),
-
-    #---- 8 Software and Data Integrity Failure ---#
-
-    (
-        "Deserialization of Untrusted Data",
-        r'pickle\.loads\(request\.data\)',
-        "Deserializing untrusted data.",
-        "Critical",
-        """Use JSON instead:
-        import json
-        data = json.loads(request.data)"""
-    ),
-
-    #---- 9 Security Logging and Monitoring Failures ---#
-
-    (
-        "Insertion of Sensitive Information into Log File",
-        r'(\.log|log\()',
-        "Avoid logging sensitive information (e.g., passwords, API keys, personal data).",
-        "High",
-        """Sanitize log data and avoid storing sensitive information in log files.
-        Example:
-        import logging
-    
-        logging.info("User login attempt")  # Safe logging
-        """
-    ),
-
-    (
-        "Improper Output Neutralization for Logs",
-        r'log\.(info|debug|error|warn|critical)\(.*\+.*\)',
-        "Avoid concatenating user input directly into logs to prevent log injection attacks.",
-        "High",
-        """Use structured logging instead of string concatenation to prevent log injection.
-        Example:
-        import logging
-
-        logging.info("User input: %s", user_input)  # Safe logging
-        """
-    ),
-
-    #---- 10 Server-Side Request Forgery (SSRF) ---#
-
-    (
-        "Server-Side Request Forgery",
-        r'requests\.get\([\w\.]+\)',
-        "Unvalidated URL fetching.",
-        "Critical",
-        """Validate URLs first:
-        if not url.startswith(('http://safe.com', 'https://safe.com')):
-            abort(400)"""
-    ),
+#---- 10 SSRF ---#
+(
+    "Server-Side Request Forgery",
+    r'requests\.get\([^)]*\)',
+    "Unrestricted URL fetching",
+    "Critical",
+    """Validate URLs:
+    if not url.startswith('https://trusted.com'):
+        abort(400)"""
+)
 ])
 
 # Commit changes and close connection
