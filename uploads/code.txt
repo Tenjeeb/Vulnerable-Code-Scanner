@@ -1,39 +1,73 @@
+from flask import Flask, request, render_template, redirect, make_response
 import sqlite3
 import os
+import subprocess
+import pickle
+import requests
 
-def create_table():
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
-    cursor.execute("INSERT INTO users (username, password) VALUES ('admin', 'password123')")
-    conn.commit()
-    conn.close()
+app = Flask(__name__)
+app.secret_key = "hardcodedsecret123"
 
+# Vulnerable route: SQL Injection
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    username = input("Enter username: ")
-    password = input("Enter password: ")
-    
-    conn = sqlite3.connect("users.db")
-    cursor = conn.cursor()
-    
-    # SQL Injection Vulnerability
-    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
-    cursor.execute(query)
-    user = cursor.fetchone()
-    
-    conn.close()
-    
-    if user:
-        print("Login successful!")
-        execute_command()
-    else:
-        print("Invalid credentials!")
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        query = f"SELECT * FROM users WHERE username='{username}' AND password='{password}'"
+        user = cursor.execute(query).fetchone()
+        if user:
+            return f"Welcome {username}"
+        else:
+            return "Invalid login"
+    return '''
+        <form method="post">
+            Username: <input name="username"><br>
+            Password: <input name="password"><br>
+            <input type="submit" value="Login">
+        </form>
+    '''
 
-def execute_command():
-    command = input("Enter a system command: ")
-    # Command Injection Vulnerability
-    os.system(command)
+# Vulnerable route: XSS
+@app.route("/hello")
+def hello():
+    name = request.args.get("name", "Guest")
+    return render_template("hello.html", name=name)
+
+# Vulnerable route: Path Traversal
+@app.route("/read")
+def read_file():
+    filename = request.args.get("file")
+    try:
+        with open(f"./files/{filename}", "r") as f:
+            return f.read()
+    except:
+        return "Error reading file."
+
+# Vulnerable route: Deserialization
+@app.route("/load", methods=["POST"])
+def load():
+    data = request.data
+    return pickle.loads(data)
+
+# Vulnerable route: SSRF
+@app.route("/ssrf")
+def ssrf():
+    url = request.args.get("url")
+    return requests.get(url).text
+
+# Vulnerable route: OS Command Injection
+@app.route("/ping")
+def ping():
+    host = request.args.get("host")
+    return subprocess.check_output(f"ping -c 1 {host}", shell=True)
+
+# Home page
+@app.route("/")
+def home():
+    return render_template("home.html")
 
 if __name__ == "__main__":
-    create_table()
-    login()
+    app.run(debug=True)
