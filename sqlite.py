@@ -2,7 +2,7 @@ import sqlite3
 
 # Connect to SQLite database
 conn = sqlite3.connect("vulnerabilities.db")
-cursor = conn.cursor()
+cursor = conn.cursor() 
 
 
 # Create table for patterns
@@ -173,3 +173,4 @@ VALUES (?, ?, ?, ?, ?)
 # Commit changes and close connection
 conn.commit()
 conn.close()
+print("Database created succesfully")
