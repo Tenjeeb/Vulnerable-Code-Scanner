@@ -24,16 +24,13 @@ VALUES (?, ?, ?, ?, ?)
 """, [
     #---- 1 Broken Access Control ---#
     (
-        "Detecting Unrestricted Direct Object References (IDOR) in URLs",
-        r'\/(users|account|profiles|orders)\/(\d+)',
-        "Exposing internal object references (e.g., user IDs) in URLs without proper authorization checks.",
+        "IDOR in URLs",
+        r'\/\b(users?|accounts?|profiles?|orders?)\/\d+\b',
+        "Exposing internal object references in URLs without authorization checks.",
         "High",
-        """Implement proper access control checks to verify user permissions before accessing resources.
-       
-        if user.has_permission(resource_id):
-           return get_resource(resource_id)
-        else:
-           raise PermissionDenied('Access denied')"""
+        """Add authorization checks:
+        if not user.can_access(resource_id):
+            abort(403)"""
     ),
 
     (
