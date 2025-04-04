@@ -35,18 +35,13 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "Path Traversal",
-        r'(\.\./|\.\.\\|%2e%2e/)',
-        "Prevent attackers from accessing files outside the intended directory.",
-        "High",
-        """Use absolute paths and validate input to restrict file access.
-        
-        import os 
-        base_dir = '/safe/directory/'
-        full_path = os.path.abspath(os.path.join(base_dir, filename))
-
-        if not full_path.startswith(base_dir):
-            raise ValueError('Unauthorized file access attempt detected!')"""
-    ),
+        r'(\.\.\/|\.\.\\|\~\/)',
+        "Potential directory traversal attack.",
+        "Critical",
+        """Secure file access:
+        from werkzeug.utils import secure_filename
+        safe_path = secure_filename(user_input)"""
+    )
 
     (
         "Missing Authorization",
