@@ -127,14 +127,11 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "OS Command Injection",
-        r'(\bos\.system\b|\bsubprocess\.(run|Popen|call|check_output)\b|\bos\.popen\b|\bcommands\.getoutput\b)',
-        "Avoid executing system commands with user input, as it can lead to remote code execution.",
+        r'subprocess\.\w+\(f?".*?\{.*?\}.*?"\)',
+        "User input in system commands.",
         "Critical",
-        """Use `subprocess.run()` with `shell=False` to prevent command injection.
-        Example:
-        import subprocess
-        result = subprocess.run(['ls', '-l'], capture_output=True, text=True)  
-        """
+        """Use safe subprocess:
+        subprocess.run(['ls'], shell=False)"""
     ),
 
     (
@@ -168,6 +165,7 @@ VALUES (?, ?, ?, ?, ?)
         return render_template('template.html', 
         user_input=escape(user_input))"""
     ),
+
     (
         "XPath Injection",
         r'(\bxpath\s*=\s*[\'\"].*?//\w+\s*\[.*?\+.*?\])',
