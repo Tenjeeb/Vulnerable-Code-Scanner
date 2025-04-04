@@ -239,6 +239,16 @@ VALUES (?, ?, ?, ?, ?)
         """
     ),
 
+    (
+        "Missing CSRF Protection",
+        r'@app\.route\(.*?methods=\[.*?POST.*?\]\)(?!.*@csrf.exempt)',
+        "Missing CSRF protection on POST endpoints.",
+        "High",
+        """Add CSRF protection:
+        from flask_wtf.csrf import CSRFProtect
+        CSRFProtect(app)"""
+    )
+
     #---- 6 Vulnerable and Outdated Components ---#
 
     (
