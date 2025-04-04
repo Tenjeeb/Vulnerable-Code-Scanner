@@ -160,20 +160,14 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     (
-        "Cross-Site Scripting (XSS)",
-        r'(render_template\([^)]*\b\w+\s*\+\s*\w+)',
-        "Avoid directly inserting user input into HTML responses without escaping.",
+        "XSS (Reflected)",
+        r'render_template\(.*?\{.*?\}.*?\)',
+        "Unescaped user input in templates.",
         "High",
-        """Use Flask’s `escape()` function or template auto-escaping.
-        Example:
-        from flask import Flask, escape, render_template
-        @app.route('/search')
-        def search():
-            query = escape(request.args.get('query', ''))
-            return render_template('search.html', query=query)  
-        """
+        """Escape output:
+        return render_template('template.html', 
+        user_input=escape(user_input))"""
     ),
-
     (
         "XPath Injection",
         r'(\bxpath\s*=\s*[\'\"].*?//\w+\s*\[.*?\+.*?\])',
