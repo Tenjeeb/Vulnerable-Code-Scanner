@@ -326,21 +326,13 @@ VALUES (?, ?, ?, ?, ?)
     #---- 10 Server-Side Request Forgery (SSRF) ---#
 
     (
-        "Server-Side Request Forgery (SSRF)",
-        r'\b(url|endpoint|target)\s*=\s*["\'][^"\']+["\'].*requests.*\.(get|post)\(',
-        "Avoid allowing untrusted user input to dictate server-side requests, as this can lead to SSRF attacks.",
+        "Server-Side Request Forgery",
+        r'requests\.get\([\w\.]+\)',
+        "Unvalidated URL fetching.",
         "Critical",
-        """Validate and sanitize user input before using it in server-side requests.
-        Example:
-        import requests
-    
-        # Safe way: Validate URL before making the request
-        target_url = user_input.strip()
-        if target_url.startswith("https://") or target_url.startswith("http://"):
-        response = requests.get(target_url)  # Safe request
-        else:
-            raise ValueError("Invalid URL")
-        """
+        """Validate URLs first:
+        if not url.startswith(('http://safe.com', 'https://safe.com')):
+            abort(400)"""
     ),
 ])
 
