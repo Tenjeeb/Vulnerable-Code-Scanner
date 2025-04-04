@@ -75,14 +75,13 @@ VALUES (?, ?, ?, ?, ?)
     ),
  
     (
-        "Hardcoded Credentials",
-        r'(password|secre|key)\s*=\s*["\'][^"\']+["\']',
-        "Avoid storing sensitive information in plain text.",
-        "High",
-        """Storing sensitive information in environment variables or secure vaults.
+        "Hardcoded Secrets",
+        r'(password|secret|key)\s*=\s*[\'"][^\'"]+[\'"]',
+        "Hardcoded credentials in source code.",
+        "Critical",
+        """Use environment variables:
         import os
-        password = os.getenv('PASSWORD')
-        """     
+        password = os.getenv('DB_PASSWORD')"""
     ),
 
     #----- 2 Cryptographic Failure-------#
