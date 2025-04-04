@@ -285,14 +285,12 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "Deserialization of Untrusted Data",
-        r'\b(pickle|cPickle|marshal|shelve)\s*\.\s*(load|loads)\s*\(',
-        "Avoid deserializing untrusted data, as it can lead to remote code execution (RCE).",
+        r'pickle\.loads\(request\.data\)',
+        "Deserializing untrusted data.",
         "Critical",
-        """Use safer serialization methods like JSON instead of pickle.
-        Example:
+        """Use JSON instead:
         import json
-        data = json.loads(user_input)  # Safe way to deserialize data
-        """
+        data = json.loads(request.data)"""
     ),
 
     #---- 9 Security Logging and Monitoring Failures ---#
