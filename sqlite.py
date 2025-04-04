@@ -45,33 +45,25 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "Missing Authorization",
-        r'(route|path|url)\(.*?\)[^@]*?def\s+\w+\s*\(.*?\):',
-        "Ensure proper authorization checks are implemented for protected resources.",
+        r'@app\.route\(.*?\)[^@]*?def\s+\w+\s*\([^)]*\):',  # Narrowed to Flask routes
+        "Ensure proper authorization checks for protected resources.",
         "Critical",
-        """Enforce authorization checks before granting access.
-        from flask import request, abort
-
+        """Add authorization:
         @app.route('/admin')
         def admin_panel():
-            if not request.user or not request.user.is_admin:
+            if not request.user.is_admin:
                 abort(403)
-            return 'Welcome, Admin!'
-        """
+            return 'Welcome, Admin!'"""
     ),
 
     (
-        "Cross-Site Request Forgery (CSRF)",
-        r'<form[^>]*action=["\'][^"\']*["\'][^>]*>(?!.*csrf_token)',
-        "Protect web applications from unauthorized actions performed on behalf of authenticated users.",
+        "Missing CSRF Protection",  
+        r'@app\.route\(.*?methods=\[.*?POST.*?\]\)',  
+        "Missing CSRF protection on POST endpoints.",
         "High",
-        """Use CSRF tokens to validate legitimate requests.
-        from django.views.decorators.csrf import csrf_protect
-
-        @csrf_protect
-        def secure_view(request):
-            if request.method == 'POST':
-                pass
-        """
+        """Add CSRF protection:
+        from flask_wtf.csrf import CSRFProtect
+        CSRFProtect(app)"""
     ),
  
     (
