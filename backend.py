@@ -18,39 +18,54 @@ if not os.path.exists(UPLOAD_FOLDER):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Vulnerability detection with database-driven logic
 def scan_code(file_content):
     vulnerabilities = []
     lines = file_content.splitlines()
-    reported_vulnerabilites = set()  # Set to track reported vulnerabilities
-  
-    # Connect to SQLite Database
-    conn = sqlite3.connect("vulnerabilities.db")
-    cursor = conn.cursor()
+    reported_vulnerabilities = set()  # Set to track reported vulnerabilities
 
-    # Fetch all patterns from the database
-    cursor.execute("Select name, pattern, description, severity, secure_example FROM Patterns")
-    patterns = cursor.fetchall()
-    # Scan each line of the file for vulnerabilities
-    for i, line in enumerate(lines):
-        for name, pattern, description, severity, secure_example in patterns:
-            if re.search(pattern, line, re.IGNORECASE):
-                # Avoid reporting duplicate vulnerabilities
-                if (name, i) not in reported_vulnerabilites:
-                    line_content = line.strip()  # Get the vulnerable line content
-                    print(f"Vulnerability found: {name}, Line {i + 1}, Content: {line_content}")  # Debug print
-                    vulnerabilities.append({
-                        "type": name,
-                        "line": i + 1,  # Line number (1-indexed)
-                        "line_content": line_content,  # Vulnerable line content
-                        "description": description,
-                        "severity": severity,
-                        "secure_example": secure_example
-                    })
-                    reported_vulnerabilites.add((name, i))  # Mark this vulnerability as reported
+    try:
+        conn = sqlite3.connect("vulnerabilities.db", check_same_thread=False)
+        cursor = conn.cursor()
 
-    conn.close()
+        # Check if the database is accessible
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Patterns';")
+        if not cursor.fetchone():
+            print("Error: 'Patterns' table is missing in the database.")
+            return [{"error": "Database table 'Patterns' is missing"}]
+
+        # Fetch all patterns from the database
+        cursor.execute("SELECT name, pattern, description, severity, secure_example FROM Patterns")
+        patterns = cursor.fetchall()
+
+        # Scan each line of the file for vulnerabilities
+        for i, line in enumerate(lines):
+            for name, pattern, description, severity, secure_example in patterns:
+                try:
+                    if re.search(pattern, line, re.IGNORECASE):
+                        if (name, i) not in reported_vulnerabilities:
+                            line_content = line.strip()
+                            print(f"Vulnerability found: {name}, Line {i + 1}, Content: {line_content}")
+                            vulnerabilities.append({
+                                "type": name,
+                                "line": i + 1,
+                                "line_content": line_content,
+                                "description": description,
+                                "severity": severity,
+                                "secure_example": secure_example
+                            })
+                            reported_vulnerabilities.add((name, i))
+                except re.error as e:
+                    print(f"Regex error in pattern '{name}': {e}")
+
+    except sqlite3.Error as db_error:
+        print(f"Database error: {db_error}")
+        return [{"error": "Database connection error"}]
+
+    finally:
+        conn.close()
+
     return vulnerabilities
+
 
 # Route for serving the hTML page
 @app.route('/')

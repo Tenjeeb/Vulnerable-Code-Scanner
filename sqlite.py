@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS Patterns (
 )
 """)
 
+# Clear existing data to avoid duplicates
+cursor.execute("DELETE FROM Patterns")
+
 # Insert sample data 
 cursor.executemany("""
 INSERT INTO Patterns (name, pattern, description, severity, secure_example)
@@ -54,34 +57,39 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 2 Cryptographic Failure ---#
+    
     (
-        "Hardcoded Secrets",
-        r'(password|secret|key)\s*=\s*["\'][^\'"]+["\']',
-        "Secrets exposed in source code",
+        "Hardcoded Secret",
+        r'(?<!SELECT )(?<!WHERE )(?<!AND )\b(\w+)\s*=\s*["\'][^"\']*(password|secret|key)[^"\']*["\']',
+        "Secrets exposed in code (excludes SQL clauses)",
         "Critical",
-        """Use environment variables:
-        import os
-        key = os.getenv('SECRET_KEY')"""
+        "Use os.getenv('SECRET_KEY')"
+    ),
+
+    (
+        "Weak Hash Algorithm",
+        r'hashlib\.(md5|sha1)\(',
+        "Deprecated hash functions",
+        "High",
+        "Use `hashlib.sha256()` or `bcrypt`"
     ),
 
     #---- 3 Injection ---#
+    
     (
         "SQL Injection",
-        r'execute\(f?"[^"]*\{[^}]*\}',
-        "Unparameterized SQL queries",
+        r'f?"SELECT\b.*WHERE.*\{[^}]*\}.*\{[^}]*\}',
+        "Unparameterized query with user input",
         "Critical",
-        """Use query parameters:
-        cursor.execute("SELECT * FROM users WHERE username=? AND password=?", 
-        (username, hashed_password))"""
+        "Use cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"
     ),
 
     (
         "XSS Risk",
-        r'render_template(_string)?\([^)]*\{[^}]*\}',
-        "Potential unescaped template variables",
+        r'render_template\([^)]*\{[^}]*\}(?!\s*\|\s*(safe|escape|e))',
+        "Unescaped variable in template",
         "High",
-        """Flask auto-escapes, but be explicit:
-        {{ user_content|e }}"""
+        "Use {{ user_input|e }} or disable autoescape explicitly"
     ),
 
     (
@@ -126,14 +134,13 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 7 Authentication Failures ---#
+   
     (
-        "Plaintext Passwords",
-        r'password\s*=\s*["\'][^\'"]+["\']',
-        "Passwords should be hashed",
+        "Plaintext Password",
+        r'(?<!SELECT )(?<!WHERE )(?<!AND )password\s*=\s*["\'][^"\']+["\']',
+        "Plaintext password in variable assignment",
         "Critical",
-        """Use password hashing:
-        from werkzeug.security import generate_password_hash
-        hash = generate_password_hash(password)"""
+        "Use generate_password_hash()"
     ),
 
     #---- 8 Data Integrity ---#
@@ -145,6 +152,14 @@ VALUES (?, ?, ?, ?, ?)
         """Use JSON instead:
         import json
         data = json.loads(safe_data)"""
+    ),
+
+    (
+        "Unsafe YAML",
+        r'yaml\.load\([^)]*\)',
+        "YAML parsing with code execution",
+        "Critical",
+        "Use `yaml.safe_load()`"
     ),
 
     #---- 9 Logging Failures ---#
@@ -167,6 +182,15 @@ VALUES (?, ?, ?, ?, ?)
         ALLOWED_DOMAINS = {'trusted.com'}
         if not any(urlparse(url).netloc.endswith(d) for d in ALLOWED_DOMAINS):
             abort(400)"""
+    ),
+
+    (
+        "XXE Risk",
+        r'(xml\.etree\.ElementTree|lxml\.etree)\.(fromstring|parse|iterparse)\(',
+        "XML parsing with DTDs enabled",
+        "Critical",
+        """Disable entities:
+        parser = lxml.etree.XMLParser(resolve_entities=False)"""
     )
 ])
 
