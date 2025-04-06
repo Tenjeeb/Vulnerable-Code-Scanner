@@ -28,7 +28,7 @@ VALUES (?, ?, ?, ?, ?)
     #---- 1 Broken Access Control ---#
     (   
         "IDOR in URLs",
-        r'\/\b(users?|accounts?|profiles?|orders?)\/\d+\b',
+        r'\/\b(users?|accounts?|profiles?|orders?)\/(\d+|\{\w+\})\b',
         "Direct object references without access checks",
         "High",
         """Add ownership verification:
@@ -38,7 +38,7 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "Path Traversal",
-        r'(\.\.\/|\.\.\\|\~\/)',
+        r'(?:\.\.\/|\.\.\\|\~\/|\/etc\/passwd)',
         "Directory traversal possible",
         "Critical",
         """Use secure_filename:
@@ -60,7 +60,7 @@ VALUES (?, ?, ?, ?, ?)
     
     (
         "Hardcoded Secret",
-        r'(?<!SELECT )(?<!WHERE )(?<!AND )\b(\w+)\s*=\s*["\'][^"\']*(password|secret|key)[^"\']*["\']',
+        r'(?<!\#)(?<!SELECT\s)(?<!WHERE\s)(?<!AND\s)\b(\w+)\s*=\s*["\'][^"\']*(password|secret|key|api_key)[^"\']*["\']',
         "Secrets exposed in code (excludes SQL clauses)",
         "Critical",
         "Use os.getenv('SECRET_KEY')"
@@ -78,7 +78,8 @@ VALUES (?, ?, ?, ?, ?)
     
     (
         "SQL Injection",
-        r'f?"SELECT\b.*WHERE.*\{[^}]*\}.*\{[^}]*\}',
+        #--r'f?"SELECT\b.*WHERE.*\{[^}]*\}.*\{[^}]*\}',--#
+        r'(?:f?"|""").*?(?:SELECT|INSERT|UPDATE|DELETE).*?(?:\{[^}]*\}|\+\s*\w+)',
         "Unparameterized query with user input",
         "Critical",
         "Use cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"
@@ -103,13 +104,12 @@ VALUES (?, ?, ?, ?, ?)
 
     #---- 4 Insecure Design ---#
     (
-        "Missing Rate Limiting",
-        r'@app\.route\(.*?\)\s*def\s+\w+\(\):',
-        "No brute-force protection",
-        "Medium",
+        "Missing Auth Rate Limiting",
+        r'@app\.route\(["\'][^"\']*(login|register|reset-password|auth)[^"\']*["\'][^)]*\)[^}]*?def\s+\w+\(\):',
+        "Auth endpoints lack rate limiting",
+        "High",
         """Add Flask-Limiter:
-        from flask_limiter import Limiter
-        limiter = Limiter(app)"""
+        @limiter.limit("5/minute")  # Adjust based on use case"""
     ),
 
     #---- 5 Security Misconfiguration ---#
@@ -122,10 +122,18 @@ VALUES (?, ?, ?, ?, ?)
         app.run(debug=False)"""
     ),
 
+     (
+        "File Disclosure",
+        r'open\([^)]*\.(?:py|env|conf|ini)[^)]*\)\.read\(\)',
+        "Sensitive file exposure",
+        "Critical",
+        "Restrict file access or use env vars"
+    ),
+
     #---- 6 Vulnerable Components ---#
     (
         "Outdated Flask",
-        r'from flask import|import flask',
+        r'^from flask import|^import flask',
         "Update to latest Flask version",
         "High",
         """Check updates:
@@ -136,22 +144,31 @@ VALUES (?, ?, ?, ?, ?)
     #---- 7 Authentication Failures ---#
    
     (
-        "Plaintext Password",
-        r'(?<!SELECT )(?<!WHERE )(?<!AND )password\s*=\s*["\'][^"\']+["\']',
-        "Plaintext password in variable assignment",
-        "Critical",
-        "Use generate_password_hash()"
+        "Missing Login Rate Limiting",
+        r'@app\.route\(.*?/login.*?\)[^}]*?if\s+user\s*==\s*None\s*:',
+        "Login endpoint lacks rate limiting",
+        "High",
+        "Use Flask-Limiter: @limiter.limit('5/minute')"
+    ),
+
+    (
+        "Weak Password Policy",
+        r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']',  # Catches passwords ≤6 chars
+        "Short/weak password in code",
+        "High",
+        """Enforce policies:
+        - Min 12 chars
+        - Require mixed case + numbers"""
     ),
 
     #---- 8 Data Integrity ---#
-    (
-        "Unsafe Pickle",
-        r'pickle\.loads\([^)]*\)',
+     (
+        "Unsafe Deserialization",
+        r'(pickle|marshal)\.loads?\(',
         "Arbitrary code execution risk",
         "Critical",
         """Use JSON instead:
-        import json
-        data = json.loads(safe_data)"""
+        json.loads(safe_data)"""
     ),
 
     (
@@ -164,34 +181,25 @@ VALUES (?, ?, ?, ?, ?)
 
     #---- 9 Logging Failures ---#
     (
-        "Sensitive Data in Logs",
-        r'logging\.\w+\(.*?(password|secret|key)',
-        "Secrets exposed in logs",
-        "High",
-        """Sanitize logs:
-        logging.info("User %s logged in", username)"""
+        "No Failed Login Logs",
+        r'@app\.route\(.*?/login.*?\)[^}]*?if\s+not\s+user[^}]*?return',
+        "Failed login attempts not logged",
+        "Medium",
+        "Add: logging.warning(f'Failed login for {username}')"
     ),
 
     #---- 10 SSRF ---#
     (
         "Server-Side Request Forgery",
-        r'requests?\.(get|post|put|delete)\([^)]*\)',
-        "Unrestricted URL fetching",
+        r'requests?\.(get|post|put|delete)\([^)]*url\s*=\s*(?!["\'](?:http:\/\/localhost|127\.0\.0\.1))[^)]*\)',
+        "Unrestricted external URL fetching",
         "Critical",
         """Validate URLs:
         ALLOWED_DOMAINS = {'trusted.com'}
-        if not any(urlparse(url).netloc.endswith(d) for d in ALLOWED_DOMAINS):
-            abort(400)"""
+        if urlparse(url).netloc not in ALLOWED_DOMAINS:
+        abort(400)"""
     ),
 
-    (
-        "XXE Risk",
-        r'(xml\.etree\.ElementTree|lxml\.etree)\.(fromstring|parse|iterparse)\(',
-        "XML parsing with DTDs enabled",
-        "Critical",
-        """Disable entities:
-        parser = lxml.etree.XMLParser(resolve_entities=False)"""
-    )
 ])
 
 # Commit changes and close connection
