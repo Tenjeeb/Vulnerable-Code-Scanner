@@ -194,60 +194,91 @@
 }
 
 function startScan() {
-        const fileInput = document.getElementById('file-input');
-        const codeInput = document.getElementById('code-input');
-        const formData = new FormData();
-        const reportContainer = document.getElementById('report-container');
-        const ctaButton = document.querySelector('.cta-button');
+    const fileInput = document.getElementById('file-input');
+    const codeInput = document.getElementById('code-input');
+    const formData = new FormData();
+    const reportContainer = document.getElementById('report-container');
+    const ctaButton = document.querySelector('.cta-button');
 
-        if (activeTab === 'upload' && fileInput.files.length > 0) {
-            // File upload is selected
-            formData.append('file', fileInput.files[0]);
-        } else if (activeTab === 'paste' && codeInput.value.trim() !== '') {
-            // Code paste is selected
-            formData.append('file', new Blob([codeInput.value], {type: 'text/plain'}), 'code.txt');
-        } else {
-            alert("Please upload a file or paste code.");
+    // Maximum file size: 5MB (adjust as needed)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+
+    // Check if a file is uploaded or code is pasted
+    if (activeTab === 'upload') {
+        if (fileInput.files.length === 0) {
+            alert("Please select a file to upload.");
             return;
         }
 
-        // Disable the button and show loading state
-        ctaButton.disabled = true;
-        ctaButton.textContent = 'Scanning...';
-        reportContainer.innerHTML = '<p class="loading-message">Scanning your code. Please wait...</p>';
+        const file = fileInput.files[0];
+        
+        // Check if file is empty
+        if (file.size === 0) {
+            alert("The uploaded file is empty. Please upload a valid file.");
+            return;
+        }
 
-        // Simulate a 2-second delay before sending the request
-        setTimeout(() => {
-            // Send file to the backend
-            fetch('/scan', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('HTTP error! Status: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.vulnerabilities && data.vulnerabilities.length > 0) {
-                    displayReport(data.vulnerabilities);
-                } else if (data.error) {
-                    alert('Error: ' + data.error);    
-                } else {
-                    reportContainer.innerHTML = '<p> No vulnerabilities detected. </p>';
-                }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            })
-            .finally(() => {
-                // Re-enable the button and reset its text
-                ctaButton.disabled = false;
-                ctaButton.textContent = 'Start Your Scan Now';
-            });
-        }, 2000); // 2-second delay
+        // Check if file exceeds size limit
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`File is too large. Maximum allowed size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
+            return;
+        }
+
+        formData.append('file', file);
+    } 
+    else if (activeTab === 'paste') {
+        const code = codeInput.value.trim();
+        
+        if (code === '') {
+            alert("Please paste some code before scanning.");
+            return;
+        }
+
+        formData.append('file', new Blob([code], { type: 'text/plain' }), 'code.txt');
+    } 
+    else {
+        alert("Please upload a file or paste code.");
+        return;
     }
+
+    // Disable the button and show loading state
+    ctaButton.disabled = true;
+    ctaButton.textContent = 'Scanning...';
+    reportContainer.innerHTML = '<p class="loading-message">Scanning your code. Please wait...</p>';
+
+    // Simulate a 2-second delay (optional, consider removing if not needed)
+    setTimeout(() => {
+        fetch('/scan', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.vulnerabilities?.length > 0) {
+                displayReport(data.vulnerabilities);
+            } 
+            else if (data.error) {
+                alert('Scan failed: ' + data.error);    
+            } 
+            else {
+                reportContainer.innerHTML = '<p>No vulnerabilities detected.</p>';
+            }
+        })
+        .catch(error => {
+            alert('Error: ' + error.message);
+            console.error('Scan error:', error);
+        })
+        .finally(() => {
+            ctaButton.disabled = false;
+            ctaButton.textContent = 'Start Your Scan Now';
+        });
+    }, 2000); // 2-second delay (optional)
+}
 
 
     function clearInput() {
