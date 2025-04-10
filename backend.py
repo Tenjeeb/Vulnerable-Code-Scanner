@@ -9,6 +9,8 @@ app = Flask(__name__)
 # Configuring upload folder and allowed file types
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'py', 'txt'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
