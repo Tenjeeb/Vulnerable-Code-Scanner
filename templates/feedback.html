@@ -66,7 +66,31 @@
     
         #feedbackForm button:hover {
             background-color: #218838;
-        }    
+        }
+        
+        @media (max-width: 768px) {
+    
+    /* Feedback page specific adjustments */
+    .container {
+        width: 90%;
+        margin: 15px auto;
+        padding: 15px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px;
+    }
+    
+    .form-group textarea {
+        height: 80px; /* Slightly smaller on mobile */
+    }
+    
+    #feedbackForm button {
+        padding: 12px; /* Larger tap target */
+    }
+}
 </style>
 
 </head>
