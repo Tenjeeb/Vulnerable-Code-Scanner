@@ -10,6 +10,7 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'py', 'txt'}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -92,30 +93,46 @@ def add_patterns():
 #Upload and scan endpoint
 @app.route('/scan', methods=['POST'])
 def scan():
-    try:
-        if 'file' not in request.files:
-            return jsonify({"error": "No file provided"}), 400
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
         
-        file = request.files['file']
-        if not allowed_file(file.filename):
-            return jsonify({"error": "Invalid file type"}), 400
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Only .py and .txt files allowed"}), 400
+
+    try:
+        # Check size BEFORE saving
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        file.seek(0)  # Reset file pointer
+        
+        if file_size > MAX_FILE_SIZE:
+            return jsonify({"error": f"File exceeds {MAX_FILE_SIZE/1024/1024}MB limit"}), 400
 
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        # Read the file
         with open(file_path, 'r') as f:
             file_content = f.read()
             if not file_content.strip():
-                return jsonify({"error": "Uploaded file is empty"}), 400
+                os.remove(file_path)
+                return jsonify({"error": "File is empty"}), 400
 
-        # Scan for vulnerabilities
         vulnerabilities = scan_code(file_content)
-        return jsonify({"vulnerabilities": vulnerabilities, "filename": filename}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        os.remove(file_path)
+        return jsonify({
+            "filename": filename,
+            "vulnerabilities": vulnerabilities
+        }), 200
 
+    except Exception as e:
+        if 'file_path' in locals() and os.path.exists(file_path):
+            os.remove(file_path)
+        return jsonify({"error": f"Scan failed: {str(e)}"}), 500
     
 # Run the server
 if __name__ == '__main__':
