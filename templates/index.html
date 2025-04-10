@@ -200,8 +200,14 @@ function startScan() {
     const reportContainer = document.getElementById('report-container');
     const ctaButton = document.querySelector('.cta-button');
 
-    // Maximum file size: 5MB (adjust as needed)
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+    // Maximum file size: 5MB
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+    
+     // Allowed file types (MIME types for .txt and .py)
+     const allowedTypes = [
+        'text/plain',       // .txt
+        'text/x-python',     // .py
+    ];
 
     // Check if a file is uploaded or code is pasted
     if (activeTab === 'upload') {
@@ -224,6 +230,12 @@ function startScan() {
             return;
         }
 
+        // Check if file type is allowed
+        if (!allowedTypes.includes(file.type)) {
+            alert("Only .txt and .py files are allowed.");
+            return;
+        }
+
         formData.append('file', file);
     } 
     else if (activeTab === 'paste') {
@@ -240,6 +252,7 @@ function startScan() {
         alert("Please upload a file or paste code.");
         return;
     }
+
 
     // Disable the button and show loading state
     ctaButton.disabled = true;
