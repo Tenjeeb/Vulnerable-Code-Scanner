@@ -38,7 +38,7 @@ VALUES (?, ?, ?, ?, ?)
 
     (
         "Path Traversal",
-        r'(?:\.\.\/|\.\.\\|\~\/|\/etc\/passwd)',
+        r'(?:\.\./|\.\.\\|~/|/etc/passwd)',
         "Directory traversal possible",
         "Critical",
         """Use secure_filename:
@@ -113,16 +113,8 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 5 Security Misconfiguration ---#
-    (
-        "Debug Mode Enabled",
-        r'app\.run\(.*?debug\s*=\s*True',
-        "Debug mode exposes sensitive data",
-        "High",
-        """Disable in production:
-        app.run(debug=False)"""
-    ),
 
-     (
+    (
         "File Disclosure",
         r'open\([^)]*\.(?:py|env|conf|ini)[^)]*\)\.read\(\)',
         "Sensitive file exposure",
