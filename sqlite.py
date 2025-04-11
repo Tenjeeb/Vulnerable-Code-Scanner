@@ -123,15 +123,7 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 6 Vulnerable Components ---#
-    (
-        "Outdated Flask",
-        r'^from flask import|^import flask',
-        "Update to latest Flask version",
-        "High",
-        """Check updates:
-        pip list --outdated
-        pip install --upgrade flask"""
-    ),
+    
 
     #---- 7 Authentication Failures ---#
    
