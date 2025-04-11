@@ -123,7 +123,13 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 6 Vulnerable Components ---#
-    
+    (
+        "Known Vulnerable Package",
+        r'(pyyaml<5\.4|django<3\.2\.11|requests<2\.26\.0)',
+        "Using a package version with known CVEs",
+        "Critical",
+        "Update to patched version"
+    ),
 
     #---- 7 Authentication Failures ---#
    
