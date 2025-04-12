@@ -151,7 +151,7 @@
             <!-- False Positives Details -->
             <div class="form-group">
                 <label for="falsePositivesDetails">If yes, please provide details:</label>
-                <textarea id="falsePositivesDetails" name="falsePositivesDetails"></textarea>
+                <textarea id="falsePositivesDetails" name="falsePositivesDetails" spellcheck="false"></textarea>
             </div>
 
             <!-- Missed Vulnerabilities -->
@@ -215,14 +215,11 @@
 
     <script>
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
-            // Show alert message
+            // Show Thank you message
             alert("Thank you for your feedback!");
             
-            // Optional: Reset the form after submission
+            // Reset the form after submission
             this.reset();
-            
-            // In production, remove the reset() and let the form submit to Flask
-            // For demo purposes, we'll prevent default submission
             e.preventDefault();
         });
     </script>
