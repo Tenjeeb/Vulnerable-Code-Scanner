@@ -78,7 +78,6 @@ VALUES (?, ?, ?, ?, ?)
     
     (
         "SQL Injection",
-        #--r'f?"SELECT\b.*WHERE.*\{[^}]*\}.*\{[^}]*\}',--#
         r'(?:f?"|""").*?(?:SELECT|INSERT|UPDATE|DELETE).*?(?:\{[^}]*\}|\+\s*\w+)',
         "Unparameterized query with user input",
         "Critical",
