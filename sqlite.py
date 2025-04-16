@@ -60,8 +60,8 @@ VALUES (?, ?, ?, ?, ?)
     
     (
         "Hardcoded Secret",
-        r'(?<!\#)(?<!SELECT\s)(?<!WHERE\s)(?<!AND\s)\b(\w+)\s*=\s*["\'][^"\']*(password|secret|key|api_key)[^"\']*["\']',
-        "Secrets exposed in code (excludes SQL clauses)",
+        r'app\.secret_key\s*=\s*["\'].*["\']',
+        "Secrets exposed in code",
         "Critical",
         "Use os.getenv('SECRET_KEY')"
     ),
@@ -71,7 +71,7 @@ VALUES (?, ?, ?, ?, ?)
         r'hashlib\.(md5|sha1)\(',
         "Deprecated hash functions",
         "High",
-        "Use `hashlib.sha256()` or `bcrypt`"
+        "Use 'hashlib.sha256()' for general-purpose hashing or 'bcrypt' for password hashing"
     ),
 
     #---- 3 Injection ---#
