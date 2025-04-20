@@ -56,7 +56,7 @@ VALUES (?, ?, ?, ?, ?)
         CSRFProtect(app)"""
     ),
 
-    #---- 2 Cryptographic Failure ---#
+    #---- 2 Cryptographic Failures ---#
     
     (
         "Hardcoded Secret",
@@ -121,7 +121,7 @@ VALUES (?, ?, ?, ?, ?)
         "Restrict file access or use env vars"
     ),
 
-    #---- 6 Vulnerable Components ---#
+    #---- 6 Vulnerable and Outdated Components ---#
     (
         "Known Vulnerable Package",
         r'(flask<2\.0\.0|django<3\.2\.11|requests<2\.26\.0)',
@@ -130,7 +130,7 @@ VALUES (?, ?, ?, ?, ?)
         "Update to patched version"
     ),
 
-    #---- 7 Authentication Failures ---#
+    #---- 7 Identification and Authentication Failures ---#
    
     (
         "Missing Login Rate Limiting",
@@ -150,7 +150,7 @@ VALUES (?, ?, ?, ?, ?)
         - Require mixed case + numbers"""
     ),
 
-    #---- 8 Data Integrity ---#
+    #---- 8 Software and Data Integrity Failures---#
      (
         "Unsafe Deserialization",
         r'(pickle|marshal)\.loads?\(',
@@ -168,16 +168,16 @@ VALUES (?, ?, ?, ?, ?)
         "Use `yaml.safe_load()`"
     ),
 
-    #---- 9 Logging Failures ---#
+    #---- 9 Security Logging and Monitoring Failures ---#
     (
-        "No Failed Login Logs",
+        "Insufficient Logging - Failed Logins",
         r'@app\.route\(.*?/login.*?\)[^}]*?if\s+not\s+user[^}]*?return',
-        "Failed login attempts not logged",
+        "Failed login attempts are not logged",
         "Medium",
-        "Add: logging.warning(f'Failed login for {username}')"
+        "Add: logging.warning(f'Failed login attempt for {username}')"
     ),
 
-    #---- 10 SSRF ---#
+    #---- 10 Server-Side Request Forgery (SSRF) ---#
     (
         "Server-Side Request Forgery",
         r'requests?\.(get|post|put|delete)\([^)]*url\s*=\s*(?!["\'](?:http:\/\/localhost|127\.0\.0\.1))[^)]*\)',
