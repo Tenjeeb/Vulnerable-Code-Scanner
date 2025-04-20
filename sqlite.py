@@ -112,7 +112,6 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 5 Security Misconfiguration ---#
-
     (
         "File Disclosure",
         r'open\([^)]*\.(?:py|env|conf|ini)[^)]*\)\.read\(\)',
@@ -131,23 +130,23 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 7 Identification and Authentication Failures ---#
-   
-    (
-        "Missing Login Rate Limiting",
-        r'@app\.route\(.*?/login.*?\)[^}]*?if\s+user\s*==\s*None\s*:',
-        "Login endpoint lacks rate limiting",
-        "High",
-        "Use Flask-Limiter: @limiter.limit('5/minute')"
-    ),
 
     (
         "Weak Password Policy",
-        r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']',  # Catches passwords ≤6 chars
+        r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']', 
         "Short/weak password in code",
         "High",
         """Enforce policies:
         - Min 12 chars
         - Require mixed case + numbers"""
+    ),
+
+    (
+        "Missing MFA on Login",
+        r'@app\.route\(["\'][^"\']*login[^"\']*["\'][^}]*?(?!.*(otp|mfa))',
+        "Login endpoint lacks multi-factor authentication",
+        "High",
+        "Add TOTP: `pip install pyotp`"
     ),
 
     #---- 8 Software and Data Integrity Failures---#
@@ -158,14 +157,6 @@ VALUES (?, ?, ?, ?, ?)
         "Critical",
         """Use JSON instead:
         json.loads(safe_data)"""
-    ),
-
-    (
-        "Unsafe YAML",
-        r'yaml\.load\([^)]*\)',
-        "YAML parsing with code execution",
-        "Critical",
-        "Use `yaml.safe_load()`"
     ),
 
     #---- 9 Security Logging and Monitoring Failures ---#
