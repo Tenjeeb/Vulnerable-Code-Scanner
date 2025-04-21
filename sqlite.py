@@ -28,7 +28,7 @@ VALUES (?, ?, ?, ?, ?)
     #---- 1 Broken Access Control ---#
     (
         "Path Traversal",
-        r'send_file\(.*?\+.*?request\.',
+        r'send_file\(.*?\+\s*request\.args\.get\(',
         "User input used in file paths can expose sensitive files.",
         "Critical",
         """Use secure_filename to sanitize file names:
@@ -79,7 +79,7 @@ VALUES (?, ?, ?, ?, ?)
     (
         "SQL Injection",
         r'(?:f?"|""").*?(?:SELECT|INSERT|UPDATE|DELETE).*?(?:\{[^}]*\}|\+\s*\w+)',
-        "User input used in SQL query without parameters.",
+        "User input is used in SQL query without parameters.",
         "Critical",
         """Use parameterized queries:
         cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"""
