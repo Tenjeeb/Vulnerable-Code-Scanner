@@ -88,9 +88,10 @@ VALUES (?, ?, ?, ?, ?)
     (
         "XSS Risk",
         r'render_template\([^)]*\{[^}]*\}(?!\s*\|\s*(safe|escape|e))',
-        "Unescaped variable in template",
+        "HTML output is not escaped properly.",
         "High",
-        "Use {{ user_input|e }} or disable autoescape explicitly"
+        """Escape user input in templates:
+        {{ user_input|e }}"""
     ),
 
     (
