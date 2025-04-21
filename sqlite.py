@@ -26,20 +26,10 @@ INSERT INTO Patterns (name, pattern, description, severity, secure_example)
 VALUES (?, ?, ?, ?, ?)
 """, [
     #---- 1 Broken Access Control ---#
-    (   
-        "IDOR in URLs",
-        r'\/\b(users?|accounts?|profiles?|orders?)\/(\d+|\{\w+\})\b',
-        "Direct object references without access checks",
-        "High",
-        """Add ownership verification:
-        if resource.owner != current_user.id:
-            abort(403)"""
-    ),
-
     (
         "Path Traversal",
-        r'(?:\.\./|\.\.\\|~/|/etc/passwd)',
-        "Directory traversal possible",
+        r'send_file\(.*?\+.*?request\.',
+        "Unsanitized user input in file path allows directory traversal",
         "Critical",
         """Use secure_filename:
         from werkzeug.utils import secure_filename
@@ -47,17 +37,16 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     (
-        "Missing CSRF Protection",
-        r'@app\.route\(.*?methods=\[.*?POST.*?\]\)[^@]*?def\s+\w+\([^)]*\):[^}]*?(request\.(form|json|args)\[',
-        "Missing CSRF protection on form handlers",
+        "Insecure Direct Object Reference (IDOR)",
+        r'@app\.route\(.*?/(users?|accounts?|orders?)/(<\w+>|\d+)',
+        "Direct object references without access control",
         "High",
-        """Add CSRF protection:
-        from flask_wtf.csrf import CSRFProtect
-        CSRFProtect(app)"""
+        """Add ownership checks:
+        if resource.owner_id != current_user.id:
+        abort(403)"""
     ),
-
-    #---- 2 Cryptographic Failures ---#
     
+    #---- 2 Cryptographic Failure ---#
     (
         "Hardcoded Secret",
         r'app\.secret_key\s*=\s*["\'].*["\']',
@@ -100,37 +89,8 @@ VALUES (?, ?, ?, ?, ?)
         """Use shell=False:
         subprocess.run(['cmd', 'arg'], shell=False)"""
     ),
-
-    #---- 4 Insecure Design ---#
-    (
-        "Missing Auth Rate Limiting",
-        r'@app\.route\(["\'][^"\']*(login|register|reset-password|auth)[^"\']*["\'][^)]*\)[^}]*?def\s+\w+\(\):',
-        "Auth endpoints lack rate limiting",
-        "High",
-        """Add Flask-Limiter:
-        @limiter.limit("5/minute")  # Adjust based on use case"""
-    ),
-
-    #---- 5 Security Misconfiguration ---#
-    (
-        "File Disclosure",
-        r'open\([^)]*\.(?:py|env|conf|ini)[^)]*\)\.read\(\)',
-        "Sensitive file exposure",
-        "Critical",
-        "Restrict file access or use env vars"
-    ),
-
-    #---- 6 Vulnerable and Outdated Components ---#
-    (
-        "Known Vulnerable Package",
-        r'(flask<2\.0\.0|django<3\.2\.11|requests<2\.26\.0)',
-        "Using a package version with known CVEs",
-        "Critical",
-        "Update to patched version"
-    ),
-
-    #---- 7 Identification and Authentication Failures ---#
-
+      
+    #---- 4 Identification and Authentication Failures ---#
     (
         "Weak Password Policy",
         r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']', 
@@ -141,16 +101,8 @@ VALUES (?, ?, ?, ?, ?)
         - Require mixed case + numbers"""
     ),
 
+    #---- 5 Software and Data Integrity Failures---#
     (
-        "Missing MFA on Login",
-        r'@app\.route\(["\'][^"\']*login[^"\']*["\'][^}]*?(?!.*(otp|mfa))',
-        "Login endpoint lacks multi-factor authentication",
-        "High",
-        "Add TOTP: `pip install pyotp`"
-    ),
-
-    #---- 8 Software and Data Integrity Failures---#
-     (
         "Unsafe Deserialization",
         r'(pickle|marshal)\.loads?\(',
         "Arbitrary code execution risk",
@@ -159,19 +111,10 @@ VALUES (?, ?, ?, ?, ?)
         json.loads(safe_data)"""
     ),
 
-    #---- 9 Security Logging and Monitoring Failures ---#
-    (
-        "Insufficient Logging - Failed Logins",
-        r'@app\.route\(.*?/login.*?\)[^}]*?if\s+not\s+user[^}]*?return',
-        "Failed login attempts are not logged",
-        "Medium",
-        "Add: logging.warning(f'Failed login attempt for {username}')"
-    ),
-
-    #---- 10 Server-Side Request Forgery (SSRF) ---#
+    #---- 6 Server-Side Request Forgery (SSRF) ---#
     (
         "Server-Side Request Forgery",
-        r'requests?\.(get|post|put|delete)\([^)]*url\s*=\s*(?!["\'](?:http:\/\/localhost|127\.0\.0\.1))[^)]*\)',
+        r'requests?\.(get|post|put|delete)\([^)]*(?:url\s*=|[\w\[\]]+\s*(?:,|\)))',
         "Unrestricted external URL fetching",
         "Critical",
         """Validate URLs:

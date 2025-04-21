@@ -53,7 +53,7 @@ body {
     display: flex;
     gap: 20px;
     flex-grow: 1;
-    margin-left: 35rem;
+    margin-left: 40rem;
     
 }
 
@@ -156,7 +156,7 @@ body {
 
 .input-area {
     width: 100%;
-    min-height: 250px;
+    min-height: 300px;
     padding: 1rem;
     border: 2px dashed #ccc;
     border-radius: 4px;
