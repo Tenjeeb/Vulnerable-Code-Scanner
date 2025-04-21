@@ -63,9 +63,15 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Weak Hash Algorithm",
         r'hashlib\.(md5|sha1)\(',
-        "Deprecated hash functions",
+        "MD5 and SHA1 are outdated and insecre for hashing.",
         "High",
-        "Use 'hashlib.sha256()' for general-purpose hashing or 'bcrypt' for password hashing"
+        """Use stronger algorithms like SHA-256 or bcrypt:
+        import hashlib
+        hashlib.sha256(data).hexdigest()
+        
+        #For passwords:
+        # import bcrypt
+        # hashes = bcrypt.hashpw(password.encode(), bcrypt.gensalt())"""
     ),
 
     #---- 3 Injection ---#
@@ -73,9 +79,10 @@ VALUES (?, ?, ?, ?, ?)
     (
         "SQL Injection",
         r'(?:f?"|""").*?(?:SELECT|INSERT|UPDATE|DELETE).*?(?:\{[^}]*\}|\+\s*\w+)',
-        "Unparameterized query with user input",
+        "User input used in SQL query without parameters.",
         "Critical",
-        "Use cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"
+        """Use parameterized queries:
+        cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"""
     ),
 
     (
