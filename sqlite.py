@@ -107,33 +107,36 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Weak Password Policy",
         r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']', 
-        "Short/weak password in code",
+        "Password is harcoded and too short or weak",
         "High",
-        """Enforce policies:
+        """Enforce strong passwords policy:
         - Min 12 chars
-        - Require mixed case + numbers"""
+        - User uppper/lowercase, numbers, symbols"""
     ),
 
     #---- 5 Software and Data Integrity Failures---#
     (
         "Unsafe Deserialization",
         r'(pickle|marshal)\.loads?\(',
-        "Arbitrary code execution risk",
+        "Untrusted input in deserialization can lead to code execution.",
         "Critical",
-        """Use JSON instead:
-        json.loads(safe_data)"""
+        """Use safe formats like JSON:
+        import json
+        data = json.loads(safe_input)"""
     ),
 
     #---- 6 Server-Side Request Forgery (SSRF) ---#
     (
         "Server-Side Request Forgery",
         r'requests?\.(get|post|put|delete)\([^)]*(?:url\s*=|[\w\[\]]+\s*(?:,|\)))',
-        "Unrestricted external URL fetching",
+        "User-controlled URLs can trigger internal requests.",
         "Critical",
-        """Validate URLs:
+        """Allow only trusted domain:
+        from urllib.parse import urlparse
+
         ALLOWED_DOMAINS = {'trusted.com'}
         if urlparse(url).netloc not in ALLOWED_DOMAINS:
-        abort(400)"""
+            abort(400)"""
     ),
 
 ])
