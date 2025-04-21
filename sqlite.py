@@ -118,7 +118,7 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Weak Password Policy",
         r'(?:password|pwd)\s*=\s*["\'][^"\']{0,8}["\']', 
-        "Password is too short or weak making it vulnerable to brute-force attack.",
+        "Password is too short or weak, making it vulnerable to brute-force attack.",
         "High",
         """Enforce strong passwords policy:
         - Min 12 chars
