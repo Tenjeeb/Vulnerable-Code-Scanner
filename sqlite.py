@@ -42,7 +42,7 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Insecure Direct Object Reference (IDOR)",
         r'@app\.route\(.*?/(users?|accounts?|orders?)/(<\w+>|\d+)',
-        "Direct object references without access control",
+        "Missing checks let users access other user's data.",
         "High",
         """Add ownership checks before returning data:
         if resource.owner_id != current_user.id:
@@ -53,9 +53,11 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Hardcoded Secret",
         r'app\.secret_key\s*=\s*["\'].*["\']',
-        "Secrets exposed in code",
+        "Secret keys should not be hardcoded in the source code.",
         "Critical",
-        "Use os.getenv('SECRET_KEY')"
+        """Store secrets in environment variables:
+        import os
+        app.secret_key = os.getenv('SECRET_KEY')"""
     ),
 
     (
