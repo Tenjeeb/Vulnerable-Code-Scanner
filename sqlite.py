@@ -102,8 +102,19 @@ VALUES (?, ?, ?, ?, ?)
         """Avoid shell = True, use argument list:
     subprocess.run(['cmd', 'arg'], shell=False)"""
     ),
-      
-    #---- 4 Identification and Authentication Failures ---#
+
+      #---- 4 Security Misconfiguration ----#
+    (
+        "Debug Mode Enabled",
+        r'app\.debug\s*=\s*True',
+        "Debug mode is enabled, which can expose sensitive info in production",
+        "Medium",
+        """Disable debug mode:
+        app.debug = False
+        Or configure using environment variables"""
+    ),
+  
+    #---- 5 Identification and Authentication Failures ---#
     (
         "Weak Password Policy",
         r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']', 
@@ -114,7 +125,7 @@ VALUES (?, ?, ?, ?, ?)
     - User uppercase/lowercase, numbers, symbols"""
     ),
 
-    #---- 5 Software and Data Integrity Failures---#
+    #---- 6 Software and Data Integrity Failures---#
     (
         "Unsafe Deserialization",
         r'(pickle|marshal)\.loads?\(',
@@ -125,7 +136,7 @@ VALUES (?, ?, ?, ?, ?)
     data = json.loads(safe_input)"""
     ),
 
-    #---- 6 Server-Side Request Forgery (SSRF) ---#
+    #---- 7 Server-Side Request Forgery (SSRF) ---#
     (
         "Server-Side Request Forgery",
         r'requests?\.(get|post|put|delete)\([^)]*(?:url\s*=|[\w\[\]]+\s*(?:,|\)))',
