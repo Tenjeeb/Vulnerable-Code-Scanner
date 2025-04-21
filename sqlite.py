@@ -32,11 +32,11 @@ VALUES (?, ?, ?, ?, ?)
         "User input used in file paths can expose sensitive files.",
         "Critical",
         """Use secure_filename to sanitize file names:
-    from werkzeug.utils import secure_filename
+        from werkzeug.utils import secure_filename
         
-    filename = secure_filename(input)
-    file_path = os.path.join('uploads', filename)
-    return send_file(file_path)"""
+        filename = secure_filename(input)
+        file_path = os.path.join('uploads', filename)
+        return send_file(file_path)"""
     ),
 
     (
@@ -45,8 +45,8 @@ VALUES (?, ?, ?, ?, ?)
         "Missing checks let users access other users' data.",
         "High",
         """Add ownership checks before returning data:
-    if resource.owner_id != current_user.id:
-        abort(403)"""
+        if resource.owner_id != current_user.id:
+            abort(403)"""
     ),
     
     #---- 2 Cryptographic Failure ---#
@@ -56,8 +56,8 @@ VALUES (?, ?, ?, ?, ?)
         "Secret keys should not be hardcoded in the source code.",
         "Critical",
         """Store secrets in environment variables:
-    import os
-    app.secret_key = os.getenv('SECRET_KEY')"""
+        import os
+        app.secret_key = os.getenv('SECRET_KEY')"""
     ),
 
     (
@@ -66,12 +66,12 @@ VALUES (?, ?, ?, ?, ?)
         "MD5 and SHA1 are outdated and insecure for hashing.",
         "High",
         """Use stronger algorithms like SHA-256 or bcrypt:
-    import hashlib
-    hashlib.sha256(data).hexdigest()
+        import hashlib
+        hashlib.sha256(data).hexdigest()
         
-    #For passwords:
-    # import bcrypt
-    # hashes = bcrypt.hashpw(password.encode(), bcrypt.gensalt())"""
+        #For passwords:
+        # import bcrypt
+        # hashes = bcrypt.hashpw(password.encode(), bcrypt.gensalt())"""
     ),
 
     #---- 3 Injection ---#
@@ -82,7 +82,7 @@ VALUES (?, ?, ?, ?, ?)
         "User input used in SQL query without parameters.",
         "Critical",
         """Use parameterized queries:
-    cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"""
+        cursor.execute('SELECT * FROM users WHERE id=?', (user_id,))"""
     ),
 
     (
@@ -91,7 +91,7 @@ VALUES (?, ?, ?, ?, ?)
         "HTML output is not escaped properly.",
         "High",
         """Escape user input in templates:
-    {{ user_input|e }}"""
+        {{ user_input|e }}"""
     ),
 
     (
@@ -100,7 +100,7 @@ VALUES (?, ?, ?, ?, ?)
         "User input in shell command with shell=True is dangerous.",
         "Critical",
         """Avoid shell = True, use argument list:
-    subprocess.run(['cmd', 'arg'], shell=False)"""
+        subprocess.run(['cmd', 'arg'], shell=False)"""
     ),
 
       #---- 4 Security Misconfiguration ----#
@@ -117,12 +117,12 @@ VALUES (?, ?, ?, ?, ?)
     #---- 5 Identification and Authentication Failures ---#
     (
         "Weak Password Policy",
-        r'(?:password|pwd)\s*=\s*["\'][^"\']{0,6}["\']', 
+        r'(?:password|pwd)\s*=\s*["\'][^"\']{0,8}["\']', 
         "Password is hardcoded and too short or weak",
         "High",
         """Enforce strong passwords policy:
-    - Min 12 chars
-    - User uppercase/lowercase, numbers, symbols"""
+        - Min 12 chars
+        - User uppercase/lowercase, numbers, symbols"""
     ),
 
     #---- 6 Software and Data Integrity Failures---#
@@ -132,8 +132,8 @@ VALUES (?, ?, ?, ?, ?)
         "Untrusted input in deserialization can lead to code execution.",
         "Critical",
         """Use safe formats like JSON:
-    import json
-    data = json.loads(safe_input)"""
+        import json
+        data = json.loads(safe_input)"""
     ),
 
     #---- 7 Server-Side Request Forgery (SSRF) ---#
@@ -143,11 +143,11 @@ VALUES (?, ?, ?, ?, ?)
         "User-controlled URLs can trigger internal requests.",
         "Critical",
         """Allow only trusted domains:
-    from urllib.parse import urlparse
+        from urllib.parse import urlparse
 
-    ALLOWED_DOMAINS = {'trusted.com'}
-    if urlparse(url).netloc not in ALLOWED_DOMAINS:
-        abort(400)"""
+        ALLOWED_DOMAINS = {'trusted.com'}
+        if urlparse(url).netloc not in ALLOWED_DOMAINS:
+            abort(400)"""
     ),
 ])
 
