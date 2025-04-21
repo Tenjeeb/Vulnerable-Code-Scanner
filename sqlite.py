@@ -29,11 +29,14 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Path Traversal",
         r'send_file\(.*?\+.*?request\.',
-        "Unsanitized user input in file path allows directory traversal",
+        "User input used in file paths can expose sensitive files.",
         "Critical",
-        """Use secure_filename:
+        """Use secure_filename to sanitize file names:
         from werkzeug.utils import secure_filename
-        filename = secure_filename(input)"""
+        
+        filename = secure_filename(input)
+        file_path = os.path.join('uploads', filename)
+        return send_file(file_path)"""
     ),
 
     (
@@ -41,7 +44,7 @@ VALUES (?, ?, ?, ?, ?)
         r'@app\.route\(.*?/(users?|accounts?|orders?)/(<\w+>|\d+)',
         "Direct object references without access control",
         "High",
-        """Add ownership checks:
+        """Add ownership checks before returning data:
         if resource.owner_id != current_user.id:
         abort(403)"""
     ),
