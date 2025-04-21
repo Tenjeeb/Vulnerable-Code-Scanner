@@ -97,9 +97,9 @@ VALUES (?, ?, ?, ?, ?)
     (
         "Command Injection",
         r'subprocess\.\w+\(.*?\{.*?\}.*?,?\s*shell=True',
-        "Unsafe shell command execution",
+        "User input in shell command with shell=True is dangerous.",
         "Critical",
-        """Use shell=False:
+        """Avoid shell = True, use argument list:
         subprocess.run(['cmd', 'arg'], shell=False)"""
     ),
       
