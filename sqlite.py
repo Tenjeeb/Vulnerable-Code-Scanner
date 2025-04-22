@@ -4,7 +4,6 @@ import sqlite3
 conn = sqlite3.connect("vulnerabilities.db")
 cursor = conn.cursor() 
 
-
 # Create table for patterns
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS Patterns (
@@ -28,7 +27,7 @@ VALUES (?, ?, ?, ?, ?)
     #---- 1 Broken Access Control ---#
     (
         "Path Traversal",
-        r'send_file\(.*?\+\s*request\.args\.get\(',
+        r'send_file\([^)]*?\+\s*request\.(args|files|form|json)\.[a-z_]+\(',
         "User input used in file paths can expose sensitive files.",
         "Critical",
         """Use secure_filename to sanitize file names:
@@ -39,16 +38,6 @@ VALUES (?, ?, ?, ?, ?)
         return send_file(file_path)"""
     ),
 
-    (
-        "Insecure Direct Object Reference (IDOR)",
-        r'@app\.route\(.*?/(users?|accounts?|orders?)/(<\w+>|\d+)',
-        "Missing checks let users access other users' data.",
-        "High",
-        """Add ownership checks before returning data:
-        if resource.owner_id != current_user.id:
-            abort(403)"""
-    ),
-    
     #---- 2 Cryptographic Failure ---#
     (
         "Hardcoded Secret",
@@ -101,6 +90,16 @@ VALUES (?, ?, ?, ?, ?)
         "Critical",
         """Avoid shell = True, use argument list:
         subprocess.run(['cmd', 'arg'], shell=False)"""
+    ),
+    
+    (
+        "Use of eval()",
+        r'\beval\(',
+        "Use of eval() can execute arbitrary code and should be avoided.",
+        "High",
+        """Avoid using eval(). If needed, use safer alternatives like ast.literal_eval:
+        import ast
+        value = ast.literal_eval(user_input)"""
     ),
 
       #---- 4 Security Misconfiguration ----#
