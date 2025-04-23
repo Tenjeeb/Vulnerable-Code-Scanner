@@ -48,7 +48,7 @@ VALUES (?, ?, ?, ?, ?)
         import os
         app.secret_key = os.getenv('SECRET_KEY')"""
     ),
-
+    
     (
         "Weak Hash Algorithm",
         r'hashlib\.(md5|sha1)\(',
@@ -64,7 +64,6 @@ VALUES (?, ?, ?, ?, ?)
     ),
 
     #---- 3 Injection ---#
-    
     (
         "SQL Injection",
         r'(?:f?"|""").*?(?:SELECT|INSERT|UPDATE|DELETE).*?(?:\{[^}]*\}|\+\s*\w+)',
@@ -102,7 +101,7 @@ VALUES (?, ?, ?, ?, ?)
         value = ast.literal_eval(user_input)"""
     ),
 
-      #---- 4 Security Misconfiguration ----#
+    #---- 4 Security Misconfiguration ----#
     (
         "Debug Mode Enabled",
         r'app\.debug\s*=\s*True',
