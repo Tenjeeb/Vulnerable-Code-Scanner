@@ -47,8 +47,7 @@ VALUES (?, ?, ?, ?, ?)
         """Store secrets in environment variables:
         import os
         app.secret_key = os.getenv('SECRET_KEY')"""
-    ),
-    
+    ), 
     (
         "Weak Hash Algorithm",
         r'hashlib\.(md5|sha1)\(',
