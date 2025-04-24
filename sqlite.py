@@ -47,7 +47,8 @@ VALUES (?, ?, ?, ?, ?)
         """Store secrets in environment variables:
         import os
         app.secret_key = os.getenv('SECRET_KEY')"""
-    ), 
+    ),
+
     (
         "Weak Hash Algorithm",
         r'hashlib\.(md5|sha1)\(',
@@ -118,10 +119,12 @@ VALUES (?, ?, ?, ?, ?)
         r'(password|username)\s*=\s*["\'][^"\']+["\']',
         "Hardcoded username or password found in code. This can expose credentials and lead to unauthorized access.",
         "High",
-        """Avoid hardcoding credentials in source code.
-        - Use environment variables or configuration management tools (e.g., .env files, secret vaults).
-        - Never commit credentials to version control.
-        - Implement secure authentication using hashed passwords and secure storage."""
+        """Avoid hardcoding credentials in source code. Use environment variables.
+        import os
+
+        username = os.getenv("APP_USERNAME")
+        password = os.getenv("APP_PASSWORD") """
+        
     ),
 
     #---- 6 Software and Data Integrity Failures---#
