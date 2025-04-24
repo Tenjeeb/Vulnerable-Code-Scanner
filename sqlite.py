@@ -113,11 +113,10 @@ VALUES (?, ?, ?, ?, ?)
     ),
   
     #---- 5 Identification and Authentication Failures ---#
-
     (
         "Use of Hardcoded Credentials",
         r'(password|username)\s*=\s*["\'][^"\']+["\']',
-        "Hardcoded username or password found in code. This can expose credentials and lead to unauthorized access.",
+        "Hardcoded username or password detected, risking unathorized access",
         "High",
         """Avoid hardcoding credentials in source code. Use environment variables.
         import os
