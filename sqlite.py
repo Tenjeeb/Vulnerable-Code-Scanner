@@ -112,14 +112,16 @@ VALUES (?, ?, ?, ?, ?)
     ),
   
     #---- 5 Identification and Authentication Failures ---#
+
     (
-        "Weak Password Policy",
-        r'(?:password|pwd)\s*=\s*["\'][^"\']{0,8}["\']', 
-        "Password is too short or weak, making it vulnerable to brute-force attack.",
+        "Use of Hardcoded Credentials",
+        r'(password|username)\s*=\s*["\'][^"\']+["\']',
+        "Hardcoded username or password found in code. This can expose credentials and lead to unauthorized access.",
         "High",
-        """Enforce strong passwords policy:
-        - Min 12 chars
-        - User uppercase/lowercase, numbers, symbols"""
+        """Avoid hardcoding credentials in source code.
+        - Use environment variables or configuration management tools (e.g., .env files, secret vaults).
+        - Never commit credentials to version control.
+        - Implement secure authentication using hashed passwords and secure storage."""
     ),
 
     #---- 6 Software and Data Integrity Failures---#
