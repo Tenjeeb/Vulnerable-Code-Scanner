@@ -123,7 +123,6 @@ VALUES (?, ?, ?, ?, ?)
 
         username = os.getenv("APP_USERNAME")
         password = os.getenv("APP_PASSWORD") """
-        
     ),
 
     #---- 6 Software and Data Integrity Failures---#
