@@ -315,10 +315,21 @@ body {
     transform: translateY(-5px);
 }
 
-
 /* Remove underline from the tutorial link */
 .tutorial-link {
     text-decoration: none;   
+}
+
+.database-link {
+    text-decoration: none;
+}
+
+.working-link {
+    text-decoration: none;
+}
+
+.faqs-link {
+    text-decoration: none;
 }
 
 /* Tip of the day */
@@ -329,13 +340,11 @@ body {
     margin-top: 1rem;
 }
 
-
 .tip-box i {
     color: #ffd900;
     margin-right: 0.5rem;
     margin-top: 1rem;
 }
-
 
 /* Report section */
 .report-container {
