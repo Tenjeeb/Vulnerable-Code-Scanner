@@ -215,7 +215,7 @@ body {
     background-color: #f8f9fa;
     text-align: center;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 4px auto;
 }
 
 .why-choose h2 {
@@ -224,7 +224,6 @@ body {
     margin-bottom: 40px;
     font-weight: bold;
 }
-
 
 .benefit-card i {
     font-size: 2.5rem;
@@ -244,7 +243,6 @@ body {
     line-height: 1.6;
 }
 
-/* Adjust layout for 3 boxes in upper row and 2 in the lower row */
 .benefits-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -270,18 +268,6 @@ body {
 
 .benefit-card:nth-child(3) {
     background: #F5FFFA;
-}
-
-.benefit-card:nth-child(4) {
-    background: #fff9f0; /* Light Yellow */
-}
-
-.benefit-card:nth-child(5) {
-    background: #faf5ff; /* Light Purple */
-}
-
-.benefit-card:nth-child(6) {
-    background: #FFFDF7;
 }
 
 .benefit-card:hover {
@@ -311,25 +297,12 @@ body {
     transition: transform 0.3s;
 }
 
+.resource-card a {
+    text-decoration: none;
+}
+
 .resource-card:hover {
     transform: translateY(-5px);
-}
-
-/* Remove underline from the tutorial link */
-.tutorial-link {
-    text-decoration: none;   
-}
-
-.database-link {
-    text-decoration: none;
-}
-
-.working-link {
-    text-decoration: none;
-}
-
-.faqs-link {
-    text-decoration: none;
 }
 
 /* Tip of the day */

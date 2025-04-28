@@ -43,7 +43,7 @@ VALUES (?, ?, ?, ?, ?)
         "Hardcoded Secret",
         r'app\.secret_key\s*=\s*["\'].*["\']',
         "Secret keys should not be hardcoded in the source code.",
-        "Critical",
+        "High",
         """Store secrets in environment variables:
         import os
         app.secret_key = os.getenv('SECRET_KEY')"""
@@ -66,7 +66,7 @@ VALUES (?, ?, ?, ?, ?)
     #---- 3 Injection ---#
     (
         "SQL Injection",
-        r'(?:f?"|""").*?(?:SELECT|INSERT|UPDATE|DELETE).*?(?:\{[^}]*\}|\+\s*\w+)',
+        r'(SELECT|INSERT|UPDATE|DELETE).*?[\'"]\s*\+\s*\w+\s*\+\s*[\'"]',
         "User input is used in SQL query without parameters.",
         "Critical",
         """Use parameterized queries:
@@ -95,7 +95,7 @@ VALUES (?, ?, ?, ?, ?)
         "Use of eval()",
         r'\beval\(',
         "Use of eval() can execute arbitrary code and should be avoided.",
-        "High",
+        "Critical",
         """Avoid using eval(). If needed, use safer alternatives like ast.literal_eval:
         import ast
         value = ast.literal_eval(user_input)"""
@@ -106,7 +106,7 @@ VALUES (?, ?, ?, ?, ?)
         "Debug Mode Enabled",
         r'app\.debug\s*=\s*True',
         "Debug mode is enabled, which can expose sensitive info in production",
-        "Medium",
+        "High",
         """Disable debug mode:
         app.debug = False
         Or configure using environment variables"""
@@ -141,7 +141,7 @@ VALUES (?, ?, ?, ?, ?)
         "Server-Side Request Forgery",
         r'requests?\.(get|post|put|delete)\([^)]*(?:url\s*=|[\w\[\]]+\s*(?:,|\)))',
         "User-controlled URLs can trigger internal requests.",
-        "Critical",
+        "High",
         """Allow only trusted domains:
         from urllib.parse import urlparse
 
