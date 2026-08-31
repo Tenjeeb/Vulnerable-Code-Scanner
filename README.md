@@ -79,7 +79,7 @@ Completed
 
 This project was built as a practical exploration of Python application development, static code analysis, vulnerability detection, and OWASP security concepts.
 
-**Disclaimer**
+**9) Disclaimer**
 
 The results produced by this tool may be incomplete, inaccurate, or contain false positives/false negatives. Do not rely solely on this tool to determine whether a system or application is secure.
 
