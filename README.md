@@ -1,8 +1,8 @@
-#Vulnerable Code Scanner**
+# Vulnerable Code Scanner**
 
 A Python-based web application for detecting common OWASP Top 10 vulnerabilities in source code.
 
-#1) Overview**
+# 1) Overview**
 
 Vulnerable Code Scanner is a security-focused educational application that analyzes Python source code for potentially vulnerable patterns and presents the findings through a web interface.
 
